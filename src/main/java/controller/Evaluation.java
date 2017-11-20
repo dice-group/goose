@@ -4,7 +4,9 @@ import org.aksw.qa.commons.load.Dataset;
 import org.aksw.qa.commons.load.LoaderController;
 import org.aksw.qa.commons.datastructure.IQuestion;
 import org.aksw.qa.commons.measure.AnswerBasedEvaluation;
+import index.Searcher;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 
@@ -14,6 +16,14 @@ public class Evaluation {
 		// https://github.com/dice-group/NLIWOD/tree/master/qa.commons
 		// https://github.com/dice-group/NLIWOD/blob/master/qa.commons/src/test/java/org/aksw/qa/commons/load/LoadTest.java
 		/*List<IQuestion> questions = LoaderController.load(Dataset.QALD7_Train_Multilingual);
+		String indexDir = ""; //path to the index directory
+		Searcher searcher;
+		try {
+			searcher = new Searcher(indexDir);
+		} catch (IOException e) {
+			System.err.println("Could not open index!");
+			return;
+		}
 
 		//douzble fmeasure= 0
 		//for alle Fragen q
@@ -27,15 +37,25 @@ public class Evaluation {
 			//only use questions for resources for benchmarking
 			if(q.getAnswerType().equals("resource") && !q.getAggregation() && !q.getHybrid())
 			{
-				Set<String> answers = null;// do some magic with indexer and keywords from q.getLanguageToKeywords().get("en");
-				fmeasure += AnswerBasedEvaluation.fMeasure(answers, q);
-				questionCounter++;
+				// do some magic with indexer
+				try {
+					Set<String> answers = searcher.search(q.getLanguageToKeywords().get("en"));
+					fmeasure += AnswerBasedEvaluation.fMeasure(answers, q);
+					questionCounter++;
+				}catch(IOException e) {
+					System.err.println("Error searching for question: " + q.getQuestion());
+				}
 			}
 		}
 		
 		//EVALUIEREMN
 		// https://github.com/dice-group/NLIWOD/blob/master/qa.commons/src/test/java/org/aksw/qa/commons/measure/AnswerBasedEvaluationTest.java
 //System.out.println(fmeasure/N);
+		try {
+			searcher.closeSearcher();
+		} catch (IOException e) {
+			System.err.println("Error closing searcher!");
+		}
 		System.out.println("fMeasure: " + fmeasure/questionCounter);*/
 	}
 }
