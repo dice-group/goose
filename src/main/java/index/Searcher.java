@@ -2,6 +2,8 @@ package index;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Set;
+import java.util.TreeSet;
 
 import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import org.apache.lucene.index.DirectoryReader;
@@ -12,7 +14,8 @@ import org.apache.lucene.store.FSDirectory;
 
 public class Searcher {
 
-    private final String WORDDELIMITER = " ";
+    private final int RESULTCOUNT = 1000;
+    private final int SLOPFACOTR = 15;
     private IndexSearcher searcher;
     private IndexReader reader;
 
@@ -35,15 +38,14 @@ public class Searcher {
      * @return
      * @throws IOException
      */
-    private TopDocs search(String queryString, int results, int slopFactor) throws IOException {
+    private TopDocs search(String [] queryString, int results, int slopFactor) throws IOException {
         //use a builder to create the query
         MultiPhraseQuery.Builder builder = new MultiPhraseQuery.Builder();
         //extract words from queryString and save them to a term
-        String[] words = queryString.split(WORDDELIMITER);
-        for (int i = 0; i < words.length; i++) {
+        for (int i = 0; i < queryString.length; i++) {
             //TODO find all synonyms
             //add the word and synonyms to the builder
-            Term term = new Term("", words[i]);
+            Term term = new Term("", queryString[i]);
             builder.add(term);
             builder.setSlop(slopFactor);
         }
@@ -59,8 +61,8 @@ public class Searcher {
      * @return
      * @throws IOException
      */
-    public String[] exactSearch(String keyWords) throws IOException {
-        TopDocs results = search(keyWords, 10,0);
+    private String[] exactSearch(String [] keyWords) throws IOException {
+        TopDocs results = search(keyWords, RESULTCOUNT,0);
         ScoreDoc[] docs = results.scoreDocs;
         String[] lines = new String[docs.length];
         for (int i = 0; i < docs.length; i++) {
@@ -76,21 +78,29 @@ public class Searcher {
      * @return
      * @throws IOException
      */
-    public String[] sloppySearch(String keyWords, int upperSlopBound) throws IOException{
+    private Set<String> sloppySearch(String keyWords [], int upperSlopBound) throws IOException{
+        Set<String> answers = new TreeSet<>();
         for(int slop = 0; slop < upperSlopBound; slop++){
-            TopDocs results = search(keyWords, 10,slop);
+            TopDocs results = search(keyWords, RESULTCOUNT,slop);
             if(results.totalHits == 0) continue;
             ScoreDoc[] docs = results.scoreDocs;
             String[] lines = new String[docs.length];
             for (int i = 0; i < docs.length; i++) {
-                lines[i] = searcher.doc(docs[i].doc).get("");
+                answers.add(searcher.doc(docs[i].doc).get(""));
             }
-            return lines;
         }
-        return null;
+        return answers;
     }
 
-
+    /**
+     * Searches for matches of the keywords in the index. Returns the lines that are found.
+     * @param keyWords
+     * @return
+     * @throws IOException
+     */
+    public Set<String> search(String [] keyWords) throws IOException {
+        return sloppySearch(keyWords, SLOPFACOTR);
+    }
 
     /**
      * Closes the IndexSearcher.
