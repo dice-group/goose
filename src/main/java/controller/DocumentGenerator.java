@@ -1,49 +1,54 @@
 package controller;
 
-import java.io.File;
-import java.io.FileFilter;
+import java.sql.SQLException;
 
 import documentGeneration.IDocumentGenerator;
-import org.apache.jena.ontology.OntModel;
-import org.apache.jena.ontology.OntModelSpec;
-import org.apache.jena.query.*;
+import org.aksw.jena_sparql_api.cache.core.QueryExecutionFactoryCacheEx;
+import org.aksw.jena_sparql_api.cache.extra.CacheBackend;
+import org.aksw.jena_sparql_api.cache.extra.CacheFrontend;
+import org.aksw.jena_sparql_api.cache.extra.CacheFrontendImpl;
+import org.aksw.jena_sparql_api.cache.h2.CacheCoreH2;
+import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
+import org.aksw.jena_sparql_api.delay.core.QueryExecutionFactoryDelay;
+import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
+import org.aksw.jena_sparql_api.pagination.core.QueryExecutionFactoryPaginated;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.tdb.TDBFactory;
+
 
 public class DocumentGenerator {
 public static void main(String[] args) {
 	//DBpedia Dateien einlesen via Jena (RDFMgr / RDFParser)
 	//Model model = RDFDataMgr.loadModel("/home/lars/Dokumente/ProseminarSWT_Topic11/dbpedia/instance_types_en.ttl");
-	String queryString = "PREFIX dbr: <http://dbpedia.org/resource/>\n select distinct ?s where {dbr: ?s.}";
 
-	//use your local path
-	Dataset dataset = TDBFactory.createDataset(System.getProperty("user.dir")+"/../db");
-	Model model = dataset.getDefaultModel();
-	//use your local path
-	File dir = new File(System.getProperty("user.dir")+"/../dbpedia");
-	FileFilter ff = new TTLFilter();
-	
-	//read all .ttl files into model
-	for(File f : dir.listFiles(ff))
-	{
-		System.out.println("Loading " + f.getAbsolutePath());
-		RDFDataMgr.read(model, f.getAbsolutePath());
+	//load unique entities
+	Model entities = RDFDataMgr.loadModel(System.getProperty("user.dir") + "/../db/labels_en.ttl");
+
+	//"http://sparql-full-text.cs.upb.de:3030/ds/sparql"
+	//create query with caching to webservice
+	QueryExecutionFactory qef = new QueryExecutionFactoryHttp("http://sparql-full-text.cs.upb.de:3030/ds/sparql");
+	qef = new QueryExecutionFactoryDelay(qef, 2000);
+	long timeToLive = 24l * 60l * 60l * 1000l;
+	CacheBackend cacheBackend;
+	try {
+		cacheBackend = CacheCoreH2.create("sparql", timeToLive, true);
+	} catch (ClassNotFoundException e) {
+		e.printStackTrace();
+		return;
+	} catch (SQLException e) {
+		e.printStackTrace();
+		return;
 	}
-	
-	//TODO: correct ontology model creation with dbpedia_2016-10.owl
-	OntModel ontModel = ModelFactory.createOntologyModel(OntModelSpec.OWL_DL_MEM, model);
-	//use your local path
-	ontModel.getImportedModel(System.getProperty("user.dir")+"/../dbpedia/dbpedia_2016-10.owl");
-	
-	Query q = QueryFactory.create(queryString);
-	QueryExecution exec = QueryExecutionFactory.create(queryString, model);
-	ResultSet results = exec.execSelect();
-	
-	while(results.hasNext())
-		System.out.println(results.nextSolution().toString());
+	CacheFrontend cacheFrontend = new CacheFrontendImpl(cacheBackend);
+
+	qef = new QueryExecutionFactoryCacheEx(qef, cacheFrontend);
+	qef = new QueryExecutionFactoryPaginated(qef, 1000);
+
 	// FOR Enties e (SELECT DISTINCT ?s WHERE {?s ?p ?o.})  : DBpedia 
 	
 			// '''DOKUMENTE ERZEUGT WERDEN'''
@@ -52,9 +57,8 @@ public static void main(String[] args) {
 			//B 
 			//C
 
-	String query = "select distinct ?s where {?s ?p ?o}";
-	//throw query at dbpedia
-	ResultSet entities = null;
+	//get entities from entities model
+	ResultSet result = null;
 
 	while(entities.hasNext())
 	{
