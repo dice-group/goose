@@ -3,16 +3,13 @@ package controller;
 import java.io.File;
 import java.io.FileFilter;
 
+import documentGeneration.IDocumentGenerator;
 import org.apache.jena.ontology.OntModel;
 import org.apache.jena.ontology.OntModelSpec;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.Query;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QueryExecutionFactory;
-import org.apache.jena.query.QueryFactory;
-import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.tdb.TDBFactory;
 
@@ -54,6 +51,22 @@ public static void main(String[] args) {
 			//A nehmt euch ein tripel aus der gesamt DBpedia und üerlegt ob ihr es hinzufügt 
 			//B 
 			//C
+
+	String query = "select distinct ?s where {?s ?p ?o}";
+	//throw query at dbpedia
+	ResultSet entities = null;
+
+	while(entities.hasNext())
+	{
+		QuerySolution qEntity = entities.nextSolution();
+		Resource entity = qEntity.getResource("s");
+		String entityQuery = "select distinct ?p ?o where {"+entity.getURI()+" ?p ?o }";
+		//throw query at dbpedia
+		ResultSet relations = null;
+		IDocumentGenerator generator = null;
+		generator.generate(entity, relations);
+		//get document from generator.generate() and throw it into lucene
+	}
 			
 	//Speichern der Dokumente 
 	//a) LUCENE/Elasticsearch 
