@@ -15,7 +15,7 @@ public class Evaluation {
 		// Laden von QALD 7 train multilingual mittels NLIWOD/qa.commons
 		// https://github.com/dice-group/NLIWOD/tree/master/qa.commons
 		// https://github.com/dice-group/NLIWOD/blob/master/qa.commons/src/test/java/org/aksw/qa/commons/load/LoadTest.java
-		/*List<IQuestion> questions = LoaderController.load(Dataset.QALD7_Train_Multilingual);
+		List<IQuestion> questions = LoaderController.load(Dataset.QALD7_Train_Multilingual);
 		String indexDir = ""; //path to the index directory
 		Searcher searcher;
 		try {
@@ -39,11 +39,11 @@ public class Evaluation {
 			{
 				// do some magic with indexer
 				try {
-					Set<String> answers = searcher.search(q.getLanguageToKeywords().get("en"));
+					Set<String> answers = searcher.search((String[])q.getLanguageToKeywords().get("en").toArray());
 					fmeasure += AnswerBasedEvaluation.fMeasure(answers, q);
 					questionCounter++;
 				}catch(IOException e) {
-					System.err.println("Error searching for question: " + q.getQuestion());
+					System.err.println("Error searching for question: " + q.getLanguageToQuestion().get("en"));
 				}
 			}
 		}
@@ -56,6 +56,6 @@ public class Evaluation {
 		} catch (IOException e) {
 			System.err.println("Error closing searcher!");
 		}
-		System.out.println("fMeasure: " + fmeasure/questionCounter);*/
+		System.out.println("fMeasure: " + fmeasure/questionCounter);
 	}
 }
