@@ -49,6 +49,11 @@
             <type>pom</type>
             <version>3.5.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.aksw.semweb2nl</groupId>
+            <artifactId>triple2nl</artifactId>
+            <version>0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <repositories>
         <repository>

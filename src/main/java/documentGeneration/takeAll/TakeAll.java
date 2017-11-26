@@ -1,0 +1,74 @@
+package documentGeneration.takeAll;
+
+import documentGeneration.GeneratedDocument;
+import documentGeneration.AbstractDocumentGenerator;
+import index.TripleIndexer;
+import org.aksw.triple2nl.TripleConverter;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.graph.Triple;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
+
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+
+public class TakeAll extends AbstractDocumentGenerator {
+
+    private TripleIndexer indexer;
+    private TripleConverter converter;
+
+
+    @Override
+    public void init(String indexPath) throws IOException {
+        indexer = new TripleIndexer(indexPath);
+        converter = new TripleConverter();
+    }
+
+    @Override
+    public void generate(Resource entity, ResultSet relations) throws IOException {
+        //?p ?o
+
+        Node subject  = NodeFactory.createURI(entity.getURI());
+
+        //create list of triples
+        ArrayList<Triple> triples = new ArrayList<>();
+
+        while(relations.hasNext()) {
+            QuerySolution sol = relations.next();
+            RDFNode p = sol.get("p");
+            RDFNode o = sol.get("o");
+            Node predicate = rdfNodeToNode(p);
+            Node object = rdfNodeToNode(o);
+
+            Triple t = Triple.create(subject, predicate, object);
+            triples.add(t);
+        }
+        String document = converter.convert(triples);
+        System.out.println(document);
+        GeneratedDocument gendoc = new GeneratedDocument(subject.getName(), document);
+
+        //debug
+        File f = new File("" +
+                "\\debug\\"+subject.getName());
+        FileOutputStream fs = new FileOutputStream(f);
+        fs.write(gendoc.getDocument().getBytes());
+        fs.close();
+        //debug
+
+        indexer.addDocumentToIndex(gendoc);
+    }
+
+    public void finish() throws IOException {
+        indexer.closeIndex();
+    }
+
+}
+
+
+
