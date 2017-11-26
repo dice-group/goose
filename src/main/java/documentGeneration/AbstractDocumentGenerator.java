@@ -32,7 +32,7 @@ public abstract class AbstractDocumentGenerator {
 	 * @param relations Triple relations ?p ?o
 	 * @throws IOException
 	 */
-	public abstract  void generate(Resource entity, ResultSet relations) throws IOException;
+	public abstract  void generate(Resource entity, ResultSet relations, String label) throws IOException;
 
 
 	/**

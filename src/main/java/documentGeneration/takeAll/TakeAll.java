@@ -31,15 +31,15 @@ public class TakeAll extends AbstractDocumentGenerator {
     }
 
     @Override
-    public void generate(Resource entity, ResultSet relations) throws IOException {
+    public void generate(Resource entity, ResultSet relations, String label) throws IOException {
         //?p ?o
 
-        Node subject  = NodeFactory.createURI(entity.getURI());
+        Node subject = NodeFactory.createURI(entity.getURI());
 
         //create list of triples
         ArrayList<Triple> triples = new ArrayList<>();
 
-        while(relations.hasNext()) {
+        while (relations.hasNext()) {
             QuerySolution sol = relations.next();
             RDFNode p = sol.get("p");
             RDFNode o = sol.get("o");
@@ -50,11 +50,13 @@ public class TakeAll extends AbstractDocumentGenerator {
             triples.add(t);
         }
         String document = converter.convert(triples);
-        System.out.println(document);
-        GeneratedDocument gendoc = new GeneratedDocument(subject.getLocalName(), document);
+        GeneratedDocument gendoc = new GeneratedDocument(label, document);
+
 
         //debug
-        File f = new File(System.getProperty("user.dir")+"/../debug/"+subject.getLocalName());
+        if (subject.getLocalName().equals("")) return;
+
+        File f = new File(System.getProperty("user.dir") + "/../debug/" + label);
         f.getParentFile().mkdirs();
         f.createNewFile();
         FileOutputStream fs = new FileOutputStream(f);
@@ -63,6 +65,8 @@ public class TakeAll extends AbstractDocumentGenerator {
         //debug
 
         indexer.addDocumentToIndex(gendoc);
+
+
     }
 
     public void finish() throws IOException {

@@ -15,6 +15,7 @@ import org.aksw.jena_sparql_api.delay.core.QueryExecutionFactoryDelay;
 import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
 import org.aksw.jena_sparql_api.model.QueryExecutionFactoryModel;
 import org.aksw.jena_sparql_api.pagination.core.QueryExecutionFactoryPaginated;
+import org.apache.commons.logging.impl.Log4JLogger;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
@@ -22,10 +23,13 @@ import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.log4j.PropertyConfigurator;
 
 
 public class DocumentGenerator {
 public static void main(String[] args) throws IOException {
+
+
 	//DBpedia Dateien einlesen via Jena (RDFMgr / RDFParser)
 	//Model model = RDFDataMgr.loadModel("/home/lars/Dokumente/ProseminarSWT_Topic11/dbpedia/instance_types_en.ttl");
 
@@ -63,12 +67,14 @@ public static void main(String[] args) throws IOException {
 			//C
 
 	System.out.println("Preparing entity query!");
-	String entityQuery = "select distinct ?s where {?s ?p ?o}";
+	String entityQuery = "select distinct ?s ?o where {?s ?p ?o}";
 	QueryExecutionFactory entityEx = new QueryExecutionFactoryModel(entities);
 	QueryExecution exec = entityEx.createQueryExecution(entityQuery);
 	//get entities from entities model
 	ResultSet entResults = exec.execSelect();
 	System.out.println("Finished query!");
+
+
 	AbstractDocumentGenerator generator = new TakeAll();
 	generator.init(System.getProperty("user.dir")+"/../index");
 	while(entResults.hasNext())
@@ -81,7 +87,10 @@ public static void main(String[] args) throws IOException {
 		QueryExecution query = qef.createQueryExecution(queryString);
 		ResultSet relations = query.execSelect();
 		System.out.println("Queried successfully");
-		generator.generate(entity, relations);
+
+		//get label string
+		String label = qEntity.get("o").asLiteral().getLexicalForm();
+		generator.generate(entity, relations, label);
 		//get document from generator.generate() and throw it into lucene
 	}
 			
