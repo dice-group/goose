@@ -11,6 +11,7 @@ import org.aksw.jena_sparql_api.cache.h2.CacheCoreH2;
 import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
 import org.aksw.jena_sparql_api.delay.core.QueryExecutionFactoryDelay;
 import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
+import org.aksw.jena_sparql_api.model.QueryExecutionFactoryModel;
 import org.aksw.jena_sparql_api.pagination.core.QueryExecutionFactoryPaginated;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
@@ -26,9 +27,10 @@ public static void main(String[] args) {
 	//DBpedia Dateien einlesen via Jena (RDFMgr / RDFParser)
 	//Model model = RDFDataMgr.loadModel("/home/lars/Dokumente/ProseminarSWT_Topic11/dbpedia/instance_types_en.ttl");
 
+	System.out.println("Loading labels");
 	//load unique entities
-	Model entities = RDFDataMgr.loadModel(System.getProperty("user.dir") + "/../db/labels_en.ttl");
-
+	Model entities = RDFDataMgr.loadModel(System.getProperty("user.dir") + "/../dbpedia/labels_en.ttl");
+	System.out.println("Loading labels finished");
 	//"http://sparql-full-text.cs.upb.de:3030/ds/sparql"
 	//create query with caching to webservice
 	QueryExecutionFactory qef = new QueryExecutionFactoryHttp("http://sparql-full-text.cs.upb.de:3030/ds/sparql");
@@ -57,18 +59,23 @@ public static void main(String[] args) {
 			//B 
 			//C
 
+	System.out.println("Preparing entity query!");
+	String entityQuery = "select distinct ?s where {?s ?p ?o} LIMIT 100";
+	QueryExecutionFactory entityEx = new QueryExecutionFactoryModel(entities);
+	QueryExecution exec = entityEx.createQueryExecution(entityQuery);
 	//get entities from entities model
-	ResultSet result = null;
-
-	while(entities.hasNext())
+	ResultSet entResults = exec.execSelect();
+	System.out.println("Finished query!");
+	while(entResults.hasNext())
 	{
-		QuerySolution qEntity = entities.nextSolution();
+		QuerySolution qEntity = entResults.nextSolution();
 		Resource entity = qEntity.getResource("s");
-		String entityQuery = "select distinct ?p ?o where {"+entity.getURI()+" ?p ?o }";
+		System.out.println(entity.getURI());
+		//String entityQuery = "select distinct ?p ?o where {"+entity.getURI()+" ?p ?o }";
 		//throw query at dbpedia
 		ResultSet relations = null;
 		IDocumentGenerator generator = null;
-		generator.generate(entity, relations);
+		//generator.generate(entity, relations);
 		//get document from generator.generate() and throw it into lucene
 	}
 			
