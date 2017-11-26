@@ -47,7 +47,8 @@ public abstract class AbstractDocumentGenerator {
 			node = NodeFactory.createLiteral(pred.getDatatypeURI(), pred.getLexicalForm());
 		} else {
 			Resource pred = n.asResource();
-			node = NodeFactory.createURI(pred.getURI());
+			System.out.println(pred.toString());
+			node = NodeFactory.createURI(pred.toString());
 		}
 		return node;
 	}

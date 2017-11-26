@@ -1,8 +1,10 @@
 package controller;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
-import documentGeneration.IDocumentGenerator;
+import documentGeneration.AbstractDocumentGenerator;
+import documentGeneration.takeAll.TakeAll;
 import org.aksw.jena_sparql_api.cache.core.QueryExecutionFactoryCacheEx;
 import org.aksw.jena_sparql_api.cache.extra.CacheBackend;
 import org.aksw.jena_sparql_api.cache.extra.CacheFrontend;
@@ -23,22 +25,23 @@ import org.apache.jena.riot.RDFDataMgr;
 
 
 public class DocumentGenerator {
-public static void main(String[] args) {
+public static void main(String[] args) throws IOException {
 	//DBpedia Dateien einlesen via Jena (RDFMgr / RDFParser)
 	//Model model = RDFDataMgr.loadModel("/home/lars/Dokumente/ProseminarSWT_Topic11/dbpedia/instance_types_en.ttl");
 
 	System.out.println("Loading labels");
 	//load unique entities
-	Model entities = RDFDataMgr.loadModel(System.getProperty("user.dir") + "/../dbpedia/labels_en.ttl");
+	Model entities = RDFDataMgr.loadModel(System.getProperty("user.dir") + "/src/main/res/labels_en1000.ttl");
 	System.out.println("Loading labels finished");
 	//"http://sparql-full-text.cs.upb.de:3030/ds/sparql"
 	//create query with caching to webservice
-	QueryExecutionFactory qef = new QueryExecutionFactoryHttp("http://sparql-full-text.cs.upb.de:3030/ds/sparql");
+	//http://sparql-full-text.cs.upb.de:3030/ds/sparql
+	QueryExecutionFactory qef = new QueryExecutionFactoryHttp("http://dbpedia.org/sparql");
 	qef = new QueryExecutionFactoryDelay(qef, 2000);
 	long timeToLive = 24l * 60l * 60l * 1000l;
-	CacheBackend cacheBackend;
+	/*CacheBackend cacheBackend;
 	try {
-		cacheBackend = CacheCoreH2.create("sparql", timeToLive, true);
+		cacheBackend = CacheCoreH2.create("~/sparql", timeToLive, true);
 	} catch (ClassNotFoundException e) {
 		e.printStackTrace();
 		return;
@@ -48,7 +51,7 @@ public static void main(String[] args) {
 	}
 	CacheFrontend cacheFrontend = new CacheFrontendImpl(cacheBackend);
 
-	qef = new QueryExecutionFactoryCacheEx(qef, cacheFrontend);
+	qef = new QueryExecutionFactoryCacheEx(qef, cacheFrontend);*/
 	qef = new QueryExecutionFactoryPaginated(qef, 1000);
 
 	// FOR Enties e (SELECT DISTINCT ?s WHERE {?s ?p ?o.})  : DBpedia 
@@ -60,28 +63,31 @@ public static void main(String[] args) {
 			//C
 
 	System.out.println("Preparing entity query!");
-	String entityQuery = "select distinct ?s where {?s ?p ?o} LIMIT 100";
+	String entityQuery = "select distinct ?s where {?s ?p ?o}";
 	QueryExecutionFactory entityEx = new QueryExecutionFactoryModel(entities);
 	QueryExecution exec = entityEx.createQueryExecution(entityQuery);
 	//get entities from entities model
 	ResultSet entResults = exec.execSelect();
 	System.out.println("Finished query!");
+	AbstractDocumentGenerator generator = new TakeAll();
+	generator.init(System.getProperty("user.dir")+"/../index");
 	while(entResults.hasNext())
 	{
 		QuerySolution qEntity = entResults.nextSolution();
 		Resource entity = qEntity.getResource("s");
 		System.out.println(entity.getURI());
-		String queryString = "select distinct ?p ?o where {"+entity.getURI()+" ?p ?o }";
+		String queryString = "select distinct ?p ?o where {<"+entity.getURI()+"> ?p ?o }";
 		//throw query at dbpedia
 		QueryExecution query = qef.createQueryExecution(queryString);
 		ResultSet relations = query.execSelect();
-		IDocumentGenerator generator = null;
-		//generator.generate(entity, relations);
+		System.out.println("Queried successfully");
+		generator.generate(entity, relations);
 		//get document from generator.generate() and throw it into lucene
 	}
 			
 	//Speichern der Dokumente 
 	//a) LUCENE/Elasticsearch 
 	//b) einfach in Dateien/Hashmap
+	generator.finish();
 	}
 }

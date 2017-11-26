@@ -51,11 +51,12 @@ public class TakeAll extends AbstractDocumentGenerator {
         }
         String document = converter.convert(triples);
         System.out.println(document);
-        GeneratedDocument gendoc = new GeneratedDocument(subject.getName(), document);
+        GeneratedDocument gendoc = new GeneratedDocument(subject.getLocalName(), document);
 
         //debug
-        File f = new File("" +
-                "\\debug\\"+subject.getName());
+        File f = new File(System.getProperty("user.dir")+"/../debug/"+subject.getLocalName());
+        f.getParentFile().mkdirs();
+        f.createNewFile();
         FileOutputStream fs = new FileOutputStream(f);
         fs.write(gendoc.getDocument().getBytes());
         fs.close();
