@@ -71,9 +71,10 @@ public static void main(String[] args) {
 		QuerySolution qEntity = entResults.nextSolution();
 		Resource entity = qEntity.getResource("s");
 		System.out.println(entity.getURI());
-		//String entityQuery = "select distinct ?p ?o where {"+entity.getURI()+" ?p ?o }";
+		String queryString = "select distinct ?p ?o where {"+entity.getURI()+" ?p ?o }";
 		//throw query at dbpedia
-		ResultSet relations = null;
+		QueryExecution query = qef.createQueryExecution(queryString);
+		ResultSet relations = query.execSelect();
 		IDocumentGenerator generator = null;
 		//generator.generate(entity, relations);
 		//get document from generator.generate() and throw it into lucene
