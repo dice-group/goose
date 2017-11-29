@@ -1,25 +1,2 @@
 # started 2017-03-14T08:38:43Z
-<http://dbpedia.org/resource/Durrani_Empire> <http://www.w3.org/2000/01/rdf-schema#label> "Durrani Empire"@en .
-<http://dbpedia.org/resource/Albert_Brooks> <http://www.w3.org/2000/01/rdf-schema#label> "Albert Brooks"@en .
-<http://dbpedia.org/resource/Alpha_helix> <http://www.w3.org/2000/01/rdf-schema#label> "Alpha helix"@en .
-<http://dbpedia.org/resource/Alexandria,_Indiana> <http://www.w3.org/2000/01/rdf-schema#label> "Alexandria, Indiana"@en .
-<http://dbpedia.org/resource/Altair> <http://www.w3.org/2000/01/rdf-schema#label> "Altair"@en .
-<http://dbpedia.org/resource/Epsilon_Ursae_Majoris> <http://www.w3.org/2000/01/rdf-schema#label> "Epsilon Ursae Majoris"@en .
-<http://dbpedia.org/resource/Antares> <http://www.w3.org/2000/01/rdf-schema#label> "Antares"@en .
-<http://dbpedia.org/resource/Arcturus> <http://www.w3.org/2000/01/rdf-schema#label> "Arcturus"@en .
-<http://dbpedia.org/resource/Aldebaran> <http://www.w3.org/2000/01/rdf-schema#label> "Aldebaran"@en .
-<http://dbpedia.org/resource/Alexandria> <http://www.w3.org/2000/01/rdf-schema#label> "Alexandria"@en .
-<http://dbpedia.org/resource/Alexandria,_Louisiana> <http://www.w3.org/2000/01/rdf-schema#label> "Alexandria, Louisiana"@en .
-<http://dbpedia.org/resource/Akira_Toriyama> <http://www.w3.org/2000/01/rdf-schema#label> "Akira Toriyama"@en .
-<http://dbpedia.org/resource/Abiword> <http://www.w3.org/2000/01/rdf-schema#label> "Abiword"@en .
-<http://dbpedia.org/resource/Apple_Airport> <http://www.w3.org/2000/01/rdf-schema#label> "Apple Airport"@en .
-<http://dbpedia.org/resource/Aga> <http://www.w3.org/2000/01/rdf-schema#label> "Aga"@en .
 <http://dbpedia.org/resource/Amiga_500_Plus> <http://www.w3.org/2000/01/rdf-schema#label> "Amiga 500 Plus"@en .
-<http://dbpedia.org/resource/Accumulator_(computing)> <http://www.w3.org/2000/01/rdf-schema#label> "Accumulator (computing)"@en .
-<http://dbpedia.org/resource/Amiga_500> <http://www.w3.org/2000/01/rdf-schema#label> "Amiga 500"@en .
-<http://dbpedia.org/resource/Asymptote> <http://www.w3.org/2000/01/rdf-schema#label> "Asymptote"@en .
-<http://dbpedia.org/resource/Arianespace> <http://www.w3.org/2000/01/rdf-schema#label> "Arianespace"@en .
-<http://dbpedia.org/resource/Amiga_1000> <http://www.w3.org/2000/01/rdf-schema#label> "Amiga 1000"@en .
-<http://dbpedia.org/resource/Australian_Broadcasting_Corporation> <http://www.w3.org/2000/01/rdf-schema#label> "Australian Broadcasting Corporation"@en .
-<http://dbpedia.org/resource/Andrew_S._Tanenbaum> <http://www.w3.org/2000/01/rdf-schema#label> "Andrew S. Tanenbaum"@en .
-<http://dbpedia.org/resource/Ariane_5> <http://www.w3.org/2000/01/rdf-schema#label> "Ariane 5"@en .

@@ -1,19 +1,18 @@
 package index;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.*;
 
-import org.apache.lucene.search.MultiPhraseQuery;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -45,7 +44,9 @@ public class TripleSearcher {
         for (int i = 0; i < keywords.length; i++) {
             //TODO find all synonyms
             //add the word and synonyms to the builder
-            Term term = new Term("", keywords[i]);
+            //lowercase all keywords
+            keywords[i] = keywords[i].toLowerCase().trim();
+            Term term = new Term("document", keywords[i]);
             builder.add(term);
             builder.setSlop(SLOPFACTOR);
         }
@@ -56,10 +57,57 @@ public class TripleSearcher {
 
         for (ScoreDoc doc : results.scoreDocs){
             Document resorce = reader.document(doc.doc);
-            answers.add(resorce.get("entity"));
+            String entity = resorce.get("entity");
+            if(subclauseContainsOneKeyword(entity, keywords)){
+                //try if the answer is a literal <=> the subordinate clause that contains a keyword contains ""
+                //split the document in sobordinate clauses
+                String [] keysWithoutEntityName = stringMinus(keywords, entity);
+                String [] subclauses = resorce.get("document").split(",");
+                for(String subclause : subclauses){
+                    if(subclauseContainsOneKeyword(subclause,keysWithoutEntityName)){
+                        //extract literal
+
+                        int start = StringUtils.ordinalIndexOf(subclause,"\"",1);
+                        int end = StringUtils.ordinalIndexOf(subclause,"\"",2);
+                        if(start == -1 || end == -1) continue;
+                        answers.add(subclause.substring(start+1, end));
+                    }
+                }
+
+            } else // just add the entity to the results
+                answers.add(entity);
         }
 
         return answers;
+    }
+
+    private boolean keywordEqaulsResult(String [] keywords, String entity){
+        for(String keyword : keywords){
+            if(keyword.equals(entity)) return true;
+        }
+        return false;
+    }
+
+    private boolean subclauseContainsOneKeyword(String subclause, String [] keywords){
+        for(String keyword : keywords){
+            if(subclause.contains(keyword)) return true;
+        }
+        return false;
+    }
+
+    private String[] stringMinus(String [] keywords, String entity){
+        entity = entity.toLowerCase();
+        ArrayList<String> result = new ArrayList<>();
+        for(String keyword : keywords){
+            if(!entity.contains(keyword)){
+                result.add(keyword);
+            }
+        }
+        String [] res = new String[result.size()];
+        for(int i = 0; i < result.size(); i++){
+            res[i]= result.get(i);
+        }
+        return res;
     }
 
 }
