@@ -1,0 +1,24 @@
+package controller;
+
+import index.Searcher;
+import index.TripleSearcher;
+import org.apache.jena.base.Sys;
+
+import java.io.IOException;
+import java.util.Set;
+
+public class DocumentSearcher {
+    public static void main(String[] args){
+        TripleSearcher searcher;
+        String indexDir = System.getProperty("user.dir")+"/../index";
+        try{
+            searcher = new TripleSearcher(indexDir);
+            Set<String> results = searcher.searchInIndex(args);
+            System.out.println(results.size());
+            System.out.println(results);
+        } catch (IOException e) {
+            System.err.println("Could not open index!");
+            return;
+        }
+    }
+}
