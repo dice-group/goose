@@ -56,8 +56,9 @@ public class TakeAll extends AbstractDocumentGenerator {
         //debug
         if (subject.getLocalName().equals("")) return;
 
-        File f = new File(System.getProperty("user.dir") + "/../debug/" + label);
-        f.getParentFile().mkdirs();
+        File f = new File(System.getProperty("user.dir") + "/debug/" + label);
+        if(f.getParentFile() != null)
+            f.getParentFile().mkdirs();
         f.createNewFile();
         FileOutputStream fs = new FileOutputStream(f);
         fs.write(gendoc.getDocument().getBytes());

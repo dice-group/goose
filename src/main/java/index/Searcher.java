@@ -5,7 +5,6 @@ import java.nio.file.Paths;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
