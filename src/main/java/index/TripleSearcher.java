@@ -59,21 +59,37 @@ public class TripleSearcher {
             Document resorce = reader.document(doc.doc);
             String entity = resorce.get("entity");
             if(subclauseContainsOneKeyword(entity, keywords)){
-                //try if the answer is a literal <=> the subordinate clause that contains a keyword contains ""
+                //try if the answer is a literal or an entity <=> the subordinate clause that contains a keyword contains ""
                 //split the document in sobordinate clauses
                 String [] keysWithoutEntityName = stringMinus(keywords, entity);
                 String [] subclauses = resorce.get("document").split(",");
                 for(String subclause : subclauses){
                     if(subclauseContainsOneKeyword(subclause,keysWithoutEntityName)){
-                        //extract literal
+                        if(subclause.contains("\"")){
+                            //extract literal
+                            int start = StringUtils.ordinalIndexOf(subclause,"\"",1);
+                            int end = StringUtils.ordinalIndexOf(subclause,"\"",2);
+                            if(start == -1 || end == -1) continue;
+                            answers.add(subclause.substring(start+1, end));
+                        }else{
+                            // extract entity
+                            String sentence = subclause;
+                            //delete all keywords
+                            int firstUpperCaseLetter = -1;
+                            char [] chars = sentence.toCharArray();
+                            for(int i = 1; i < chars.length; i++){
+                                if(StringUtils.isAllUpperCase(""+chars[i])){
+                                    firstUpperCaseLetter = i;
+                                    break;
+                                }
+                            }
+                            answers.add(sentence.substring(firstUpperCaseLetter-1));
+                        }
 
-                        int start = StringUtils.ordinalIndexOf(subclause,"\"",1);
-                        int end = StringUtils.ordinalIndexOf(subclause,"\"",2);
-                        if(start == -1 || end == -1) continue;
-                        answers.add(subclause.substring(start+1, end));
+
+
                     }
                 }
-
             } else // just add the entity to the results
                 answers.add(entity);
         }
