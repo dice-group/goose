@@ -36,7 +36,6 @@ public class TDBCreator {
             System.out.println("Parsing " + f.getName());
             RDFParser.source(f.getPath()).parse(streamer);
             streamer.finish();
-            output.close();
         }
 
         //test code
