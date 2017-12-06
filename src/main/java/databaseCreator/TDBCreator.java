@@ -27,12 +27,13 @@ public class TDBCreator {
         File fileDirectory = new File(System.getProperty("user.dir")+"/../dbpedia");
         DatasetGraphTDB db = DatasetBuilderStd.create(Location.create(System.getProperty("user.dir")+"/../tdb"));
 
+        Sink<Triple> output = new TDBSink(db);
+        StreamRDF streamer = new TripleStreamRDF(output);
+
         //File f = new File(System.getProperty("user.dir")+"/src/main/res/labels_en1000.ttl");
         for(File f : fileDirectory.listFiles(new TTLFilter()))
         {
             System.out.println("Parsing " + f.getName());
-            Sink<Triple> output = new TDBSink(db);
-            StreamRDF streamer = new TripleStreamRDF(output);
             RDFParser.source(f.getPath()).parse(streamer);
             streamer.finish();
             output.close();
