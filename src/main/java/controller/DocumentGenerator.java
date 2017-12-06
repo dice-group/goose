@@ -1,30 +1,28 @@
 package controller;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import documentGeneration.AbstractDocumentGenerator;
 import documentGeneration.takeAll.TakeAll;
-import org.aksw.jena_sparql_api.cache.core.QueryExecutionFactoryCacheEx;
-import org.aksw.jena_sparql_api.cache.extra.CacheBackend;
-import org.aksw.jena_sparql_api.cache.extra.CacheFrontend;
-import org.aksw.jena_sparql_api.cache.extra.CacheFrontendImpl;
-import org.aksw.jena_sparql_api.cache.h2.CacheCoreH2;
 import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
 import org.aksw.jena_sparql_api.delay.core.QueryExecutionFactoryDelay;
 import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
 import org.aksw.jena_sparql_api.model.QueryExecutionFactoryModel;
 import org.aksw.jena_sparql_api.pagination.core.QueryExecutionFactoryPaginated;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.impl.Log4JLogger;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
-import org.apache.jena.query.ResultSetFormatter;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.tdb.base.file.Location;
+import org.apache.jena.tdb.setup.DatasetBuilderStd;
+import org.apache.jena.tdb.store.DatasetGraphTDB;
 import org.apache.log4j.PropertyConfigurator;
 
 
@@ -33,9 +31,12 @@ public class DocumentGenerator {
 									     "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n";
 public static void main(String[] args) throws IOException {
 
+    PropertyConfigurator.configure(System.getProperty("user.dir")+"/src/main/res/log4j.properties");
+	//org.apache.log4j.BasicConfigurator.configure(new NullAppender());
+
 	//delete old files
-	FileUtils.deleteDirectory(new File(System.getProperty("user.dir")+"/debug"));
-	FileUtils.deleteDirectory(new File(System.getProperty("user.dir")+"/index"));
+	FileUtils.deleteDirectory(new File(System.getProperty("user.dir")+"/../debug"));
+	FileUtils.deleteDirectory(new File(System.getProperty("user.dir")+"/../index"));
 	//DBpedia Dateien einlesen via Jena (RDFMgr / RDFParser)
 	//Model model = RDFDataMgr.loadModel("/home/lars/Dokumente/ProseminarSWT_Topic11/dbpedia/instance_types_en.ttl");
 
@@ -48,20 +49,6 @@ public static void main(String[] args) throws IOException {
 	//http://sparql-full-text.cs.upb.de:3030/ds/sparql
 	QueryExecutionFactory qef = new QueryExecutionFactoryHttp("http://dbpedia.org/sparql");
 	qef = new QueryExecutionFactoryDelay(qef, 2000);
-	/*long timeToLive = 24l * 60l * 60l * 1000l;
-	CacheBackend cacheBackend;
-	try {
-		cacheBackend = CacheCoreH2.create(true, System.getProperty("user.dir")+"/cache","sparql", timeToLive, true);
-	} catch (ClassNotFoundException e) {
-		e.printStackTrace();
-		return;
-	} catch (SQLException e) {
-		e.printStackTrace();
-		return;
-	}
-	CacheFrontend cacheFrontend = new CacheFrontendImpl(cacheBackend);
-
-	qef = new QueryExecutionFactoryCacheEx(qef, cacheFrontend);*/
 	qef = new QueryExecutionFactoryPaginated(qef, 1000);
 
 	// FOR Enties e (SELECT DISTINCT ?s WHERE {?s ?p ?o.})  : DBpedia 
@@ -72,9 +59,13 @@ public static void main(String[] args) throws IOException {
 			//B 
 			//C
 
+
+	//load tdb database
+	DatasetGraphTDB db = DatasetBuilderStd.create(Location.create(System.getProperty("user.dir")+"/../tdb"));
+
 	System.out.println("Preparing entity query!");
-	String entityQuery = "select distinct ?s ?o where {?s ?p ?o} LIMIT 2";
-	QueryExecutionFactory entityEx = new QueryExecutionFactoryModel(entities);
+	String entityQuery = "select distinct ?s ?o where {?s ?p ?o}";
+	QueryExecutionFactory entityEx = new QueryExecutionFactoryModel(db.getDefaultGraph());
 	QueryExecution exec = entityEx.createQueryExecution(entityQuery);
 	//get entities from entities model
 	ResultSet entResults = exec.execSelect();
@@ -82,17 +73,18 @@ public static void main(String[] args) throws IOException {
 
 
 	AbstractDocumentGenerator generator = new TakeAll();
-	generator.init(System.getProperty("user.dir")+"/index");
+	generator.init(System.getProperty("user.dir")+"/../index");
 	while(entResults.hasNext())
 	{
 		QuerySolution qEntity = entResults.nextSolution();
 		Resource entity = qEntity.getResource("s");
 		System.out.println(entity.getURI());
-		String queryString = prefix + "select distinct ?p ?o where {<"+entity.getURI()+"> ?p ?o. \n" +
+		String queryString = prefix + "select distinct ?p ?o where {{<"+entity.getURI()+"> ?p ?o.} " +
+								//"UNION {?o ?p <"+entity.getURI()+">.}\n" +
 								"MINUS {<"+entity.getURI()+"> dbo:abstract ?o}.\n" +
 								"MINUS {<"+entity.getURI()+"> dbo:wikiPageExternalLink ?o}.\n" +
 								"MINUS {<"+entity.getURI()+"> dbo:wikiPageID ?o}.\n" +
-								"MINUS {<"+entity.getURI()+"> dbo:wikiPageRevisionID ?o}." +
+								"MINUS {<"+entity.getURI()+"> dbo:wikiPageRevisionID ?o}.\n" +
 								"MINUS {<"+entity.getURI()+"> rdfs:comment ?o}.}";
 		//throw query at dbpedia
 		QueryExecution query = qef.createQueryExecution(queryString);

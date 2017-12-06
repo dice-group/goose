@@ -10,7 +10,7 @@ import java.util.Set;
 public class DocumentSearcher {
     public static void main(String[] args){
         TripleSearcher searcher;
-        String indexDir = System.getProperty("user.dir")+"/../index";
+        String indexDir = System.getProperty("user.dir")+"/index";
         try{
             searcher = new TripleSearcher(indexDir);
             Set<String> results = searcher.searchInIndex(args);

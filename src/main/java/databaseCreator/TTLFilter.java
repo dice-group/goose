@@ -1,4 +1,4 @@
-package controller;
+package databaseCreator;
 
 import java.io.File;
 import java.io.FileFilter;
