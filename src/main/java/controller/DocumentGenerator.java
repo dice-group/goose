@@ -9,6 +9,7 @@ import java.util.Properties;
 import documentGeneration.AbstractDocumentGenerator;
 import documentGeneration.takeAll.TakeAll;
 import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
+import org.aksw.jena_sparql_api.core.QueryExecutionFactoryDatasetGraph;
 import org.aksw.jena_sparql_api.delay.core.QueryExecutionFactoryDelay;
 import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
 import org.aksw.jena_sparql_api.model.QueryExecutionFactoryModel;
@@ -40,15 +41,21 @@ public static void main(String[] args) throws IOException {
 	//DBpedia Dateien einlesen via Jena (RDFMgr / RDFParser)
 	//Model model = RDFDataMgr.loadModel("/home/lars/Dokumente/ProseminarSWT_Topic11/dbpedia/instance_types_en.ttl");
 
-	System.out.println("Loading labels");
+	//System.out.println("Loading labels");
 	//load unique entities
-	Model entities = RDFDataMgr.loadModel(System.getProperty("user.dir") + "/src/main/res/labels_en1000.ttl");
-	System.out.println("Loading labels finished");
+	//Model entities = RDFDataMgr.loadModel(System.getProperty("user.dir") + "/src/main/res/labels_en1000.ttl");
+	//System.out.println("Loading labels finished");
 	//"http://sparql-full-text.cs.upb.de:3030/ds/sparql"
 	//create query with caching to webservice
 	//http://sparql-full-text.cs.upb.de:3030/ds/sparql
-	QueryExecutionFactory qef = new QueryExecutionFactoryHttp("http://dbpedia.org/sparql");
-	qef = new QueryExecutionFactoryDelay(qef, 2000);
+	//QueryExecutionFactory qef = new QueryExecutionFactoryHttp("http://dbpedia.org/sparql");
+
+	//load tdb database
+	DatasetGraphTDB db = DatasetBuilderStd.create(Location.create(System.getProperty("user.dir")+"/../tdb"));
+
+	System.out.println("TDB successfully loaded!");
+	QueryExecutionFactory qef = new QueryExecutionFactoryModel(db.getDefaultGraph());
+	qef = new QueryExecutionFactoryDelay(qef, 0);
 	qef = new QueryExecutionFactoryPaginated(qef, 1000);
 
 	// FOR Enties e (SELECT DISTINCT ?s WHERE {?s ?p ?o.})  : DBpedia 
@@ -59,28 +66,24 @@ public static void main(String[] args) throws IOException {
 			//B 
 			//C
 
-
-	//load tdb database
-	DatasetGraphTDB db = DatasetBuilderStd.create(Location.create(System.getProperty("user.dir")+"/../tdb"));
-
 	System.out.println("Preparing entity query!");
-	String entityQuery = "select distinct ?s ?o where {?s ?p ?o}";
+	String entityQuery = prefix + " select distinct ?s ?o where {?s rdfs:label ?o}";
 	QueryExecutionFactory entityEx = new QueryExecutionFactoryModel(db.getDefaultGraph());
 	QueryExecution exec = entityEx.createQueryExecution(entityQuery);
 	//get entities from entities model
 	ResultSet entResults = exec.execSelect();
 	System.out.println("Finished query!");
 
-
 	AbstractDocumentGenerator generator = new TakeAll();
 	generator.init(System.getProperty("user.dir")+"/../index");
+
 	while(entResults.hasNext())
 	{
 		QuerySolution qEntity = entResults.nextSolution();
 		Resource entity = qEntity.getResource("s");
 		System.out.println(entity.getURI());
 		String queryString = prefix + "select distinct ?p ?o where {{<"+entity.getURI()+"> ?p ?o.} " +
-								//"UNION {?o ?p <"+entity.getURI()+">.}\n" +
+								"UNION {?o ?p <"+entity.getURI()+">.}\n" +
 								"MINUS {<"+entity.getURI()+"> dbo:abstract ?o}.\n" +
 								"MINUS {<"+entity.getURI()+"> dbo:wikiPageExternalLink ?o}.\n" +
 								"MINUS {<"+entity.getURI()+"> dbo:wikiPageID ?o}.\n" +
@@ -93,6 +96,7 @@ public static void main(String[] args) throws IOException {
 
 		//get label string
 		String label = qEntity.get("o").asLiteral().getLexicalForm();
+		System.err.println("Labbel: " + label);
 		generator.generate(entity, relations, label);
 		//get document from generator.generate() and throw it into lucene
 	}

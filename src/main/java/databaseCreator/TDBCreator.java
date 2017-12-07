@@ -25,12 +25,12 @@ public class TDBCreator {
         String database = System.getProperty("user.dir")+"/../tdb";
         //select your own path to dbpedia files
         File fileDirectory = new File(System.getProperty("user.dir")+"/../dbpedia");
-        DatasetGraphTDB db = DatasetBuilderStd.create(Location.create(System.getProperty("user.dir")+"/../tdb"));
+        DatasetGraphTDB db = DatasetBuilderStd.create(Location.create(database));
 
         Sink<Triple> output = new TDBSink(db);
         StreamRDF streamer = new TripleStreamRDF(output);
 
-        //File f = new File(System.getProperty("user.dir")+"/src/main/res/labels_en1000.ttl");
+        //File f = new File(fileDirectory+"/labels_en.ttl");
         for(File f : fileDirectory.listFiles(new TTLFilter()))
         {
             System.out.println("Parsing " + f.getName());
