@@ -16,7 +16,7 @@ public class Evaluation {
 		// https://github.com/dice-group/NLIWOD/tree/master/qa.commons
 		// https://github.com/dice-group/NLIWOD/blob/master/qa.commons/src/test/java/org/aksw/qa/commons/load/LoadTest.java
 		List<IQuestion> questions = LoaderController.load(Dataset.QALD7_Train_Multilingual);
-		String indexDir = ""; //path to the index directory
+		String indexDir = System.getProperty("user.dir")+"/../index"; //path to the index directory
 		Searcher searcher;
 		try {
 			searcher = new Searcher(indexDir);
