@@ -30,7 +30,7 @@ public class TakeAll extends AbstractDocumentGenerator {
     @Override
     public void init(String indexPath) throws IOException {
         indexer = new TripleIndexer(indexPath);
-        converter = new TripleConverter(SparqlEndpoint.getEndpointDBpedia());
+        converter = new TripleConverter();
 
 
 
