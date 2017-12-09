@@ -2,10 +2,12 @@ package documentGeneration;
 
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
+import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Literal;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.dllearner.kb.sparql.SparqlEndpoint;
 
 import java.io.IOException;
 
