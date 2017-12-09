@@ -20,7 +20,7 @@ public abstract class AbstractDocumentGenerator {
 	 * @param indexPath
 	 * @throws IOException
 	 */
-	public abstract void init(String indexPathm, QueryExecutionFactory qef) throws IOException;
+	public abstract void init(String indexPath) throws IOException;
 
 	/**
 	 * Call when document generation is finished. Closes Indexer in other things.

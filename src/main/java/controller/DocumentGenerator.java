@@ -68,7 +68,7 @@ public static void main(String[] args) throws IOException {
 	ResultSet entResults = exec.execSelect();
 
 	AbstractDocumentGenerator generator = new TakeAll();
-	generator.init(System.getProperty("user.dir")+"/../index", entityEx);
+	generator.init(System.getProperty("user.dir")+"/../index");
 
 	while(entResults.hasNext())
 	{

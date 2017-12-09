@@ -29,10 +29,9 @@ public class TakeAll extends AbstractDocumentGenerator {
 
 
     @Override
-    public void init(String indexPath, QueryExecutionFactory qef) throws IOException {
+    public void init(String indexPath) throws IOException {
         indexer = new TripleIndexer(indexPath);
-        SparqlEndpointKS ks = new SparqlEndpointKS(qef);
-        converter = new TripleConverter(ks.getEndpoint());
+        converter = new TripleConverter();
     }
 
     @Override
