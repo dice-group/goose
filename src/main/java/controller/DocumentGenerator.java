@@ -35,7 +35,6 @@ public class DocumentGenerator {
 public static void main(String[] args) throws IOException {
 
     PropertyConfigurator.configure(System.getProperty("user.dir")+"/src/main/res/log4j.properties");
-	//org.apache.log4j.BasicConfigurator.configure(new NullAppender());
 
 	//delete old files
 	FileUtils.deleteDirectory(new File(System.getProperty("user.dir")+"/../debug"));
@@ -55,26 +54,18 @@ public static void main(String[] args) throws IOException {
 	//load tdb database
 	DatasetGraphTDB db = DatasetBuilderStd.create(Location.create(System.getProperty("user.dir")+"/../tdb"));
 
-	System.out.println("TDB successfully loaded!");
+	if(DEBUG)
+		System.out.println("TDB successfully loaded!");
 	QueryExecutionFactory qef = new QueryExecutionFactoryModel(db.getDefaultGraph());
 	qef = new QueryExecutionFactoryDelay(qef, 0);
 	qef = new QueryExecutionFactoryPaginated(qef, 1000);
 
-	// FOR Enties e (SELECT DISTINCT ?s WHERE {?s ?p ?o.})  : DBpedia 
-	
-			// '''DOKUMENTE ERZEUGT WERDEN'''
-			
-			//A nehmt euch ein tripel aus der gesamt DBpedia und üerlegt ob ihr es hinzufügt 
-			//B 
-			//C
-
-	System.out.println("Preparing entity query!");
 	String entityQuery = prefix + " select distinct ?s ?o where {?s rdfs:label ?o}";
 	QueryExecutionFactory entityEx = new QueryExecutionFactoryModel(db.getDefaultGraph());
 	QueryExecution exec = entityEx.createQueryExecution(entityQuery);
+
 	//get entities from entities model
 	ResultSet entResults = exec.execSelect();
-	System.out.println("Finished query!");
 
 	AbstractDocumentGenerator generator = new TakeAll();
 	generator.init(System.getProperty("user.dir")+"/../index", entityEx);
@@ -83,7 +74,8 @@ public static void main(String[] args) throws IOException {
 	{
 		QuerySolution qEntity = entResults.nextSolution();
 		Resource entity = qEntity.getResource("s");
-		System.out.println(entity.getURI());
+		if(DEBUG)
+			System.out.println(entity.getURI());
 		String queryString = prefix + "select distinct ?p ?o where {{<"+entity.getURI()+"> ?p ?o.} " +
 								"UNION {?o ?p <"+entity.getURI()+">.}\n" +
 								"MINUS {<"+entity.getURI()+"> dbo:abstract ?o}.\n" +
@@ -94,11 +86,11 @@ public static void main(String[] args) throws IOException {
 		//throw query at dbpedia
 		QueryExecution query = qef.createQueryExecution(queryString);
 		ResultSet relations = query.execSelect();
-		System.out.println("Queried successfully");
 
 		//get label string
 		String label = qEntity.get("o").asLiteral().getLexicalForm();
-		System.err.println("Labbel: " + label);
+		if(DEBUG)
+			System.err.println("Label: " + label);
 		generator.generate(entity, relations, label);
 		//get document from generator.generate() and throw it into lucene
 	}
