@@ -63,6 +63,7 @@ public class TakeAll extends AbstractDocumentGenerator {
         if (subject.getLocalName().equals("")) return;
 
         if(controller.DocumentGenerator.DEBUG){
+            label = label.replaceAll("/","_");
             File f = new File(System.getProperty("user.dir") + "/../debug/" + label);
             if(f.getParentFile() != null)
                 f.getParentFile().mkdirs();
