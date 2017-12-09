@@ -12,6 +12,7 @@ import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.RDFNode;
 import org.apache.jena.rdf.model.Resource;
+import org.dllearner.kb.SparqlEndpointKS;
 import org.dllearner.kb.sparql.SparqlEndpoint;
 
 
@@ -28,12 +29,10 @@ public class TakeAll extends AbstractDocumentGenerator {
 
 
     @Override
-    public void init(String indexPath) throws IOException {
+    public void init(String indexPath, QueryExecutionFactory qef) throws IOException {
         indexer = new TripleIndexer(indexPath);
-        converter = new TripleConverter(SparqlEndpoint.getEndpointDBpedia());
-
-
-
+        SparqlEndpointKS ks = new SparqlEndpointKS(qef);
+        converter = new TripleConverter(ks.getEndpoint());
     }
 
     @Override

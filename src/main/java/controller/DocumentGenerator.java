@@ -77,7 +77,7 @@ public static void main(String[] args) throws IOException {
 	System.out.println("Finished query!");
 
 	AbstractDocumentGenerator generator = new TakeAll();
-	generator.init(System.getProperty("user.dir")+"/../index");
+	generator.init(System.getProperty("user.dir")+"/../index", entityEx);
 
 	while(entResults.hasNext())
 	{
