@@ -1,5 +1,6 @@
 package index;
 
+import documentGeneration.GeneratedDocument;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -19,7 +20,7 @@ import java.util.TreeSet;
 public class TripleSearcher {
 
     private final int RESULTCOUNT = 1000;
-    private final int SLOPFACTOR = 1000;
+    private final int SLOPFACTOR = 10000;
     private IndexSearcher searcher;
     private IndexReader reader;
 
@@ -83,15 +84,16 @@ public class TripleSearcher {
                                     break;
                                 }
                             }
-                            answers.add(sentence.substring(firstUpperCaseLetter-1));
+                            //add URI to answers
+                            answers.add(GeneratedDocument.generateURIOutOfTriple2NLLabel(sentence.substring(firstUpperCaseLetter-1)));
                         }
 
 
 
                     }
                 }
-            } else // just add the entity to the results
-                answers.add(entity);
+            } else // just add the entity as URI to the results
+                answers.add(resorce.get("uri"));
         }
 
         return answers;

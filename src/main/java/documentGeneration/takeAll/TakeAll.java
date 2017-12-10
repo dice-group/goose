@@ -54,26 +54,34 @@ public class TakeAll extends AbstractDocumentGenerator {
             triples.add(t);
         }
         String document = converter.convert(triples);
-        GeneratedDocument gendoc = new GeneratedDocument(label, document);
 
+        try{
+            GeneratedDocument gendoc = new GeneratedDocument(label,entity.getURI(), document);
 
-        //debug
-        if (subject.getLocalName().equals("")) return;
-
-        if(controller.DocumentGenerator.DEBUG){
-            label = label.replaceAll("/","_");
-            File f = new File(System.getProperty("user.dir") + "/../debug/" + label);
-            if(f.getParentFile() != null)
-                f.getParentFile().mkdirs();
-            f.createNewFile();
-            FileOutputStream fs = new FileOutputStream(f);
-            fs.write(gendoc.getDocument().getBytes());
-            fs.close();
             //debug
+            if (subject.getLocalName().equals("")) return;
+
+            if(controller.DocumentGenerator.DEBUG){
+                label = label.replaceAll("/","_");
+                File f = new File(System.getProperty("user.dir") + "/../debug/" + label);
+                if(f.getParentFile() != null)
+                    f.getParentFile().mkdirs();
+                f.createNewFile();
+                FileOutputStream fs = new FileOutputStream(f);
+                fs.write(gendoc.getDocument().getBytes());
+                fs.close();
+                //debug
+            }
+            indexer.addDocumentToIndex(gendoc);
+
+        } catch(IllegalArgumentException ia){
+            //entity has no valid URI => don't store it into the index
+            return;
         }
 
 
-        indexer.addDocumentToIndex(gendoc);
+
+
 
 
     }

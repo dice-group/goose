@@ -40,6 +40,8 @@ public class TripleIndexer {
         //add field for the entity to the document
         IndexableField entity = new TextField("entity", gendocument.getEntity(), Field.Store.YES);
         document.add(entity);
+        IndexableField uri = new TextField("uri", gendocument.getUri(), Field.Store.YES);
+        document.add(uri);
         IndexableField content = new TextField("document",gendocument.getDocument(), Field.Store.YES);
         document.add(content);
         //add document to index
