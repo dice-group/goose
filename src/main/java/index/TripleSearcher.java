@@ -6,9 +6,11 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
+import org.apache.lucene.queryparser.xml.builders.BooleanQueryBuilder;
 import org.apache.lucene.search.*;
 
 import org.apache.lucene.store.FSDirectory;
+import org.openrdf.query.parser.QueryParser;
 
 
 import java.io.IOException;
@@ -39,6 +41,7 @@ public class TripleSearcher {
     public Set<String> searchInIndex(String [] keywords) throws IOException {
         Set<String> answers = new TreeSet<String>();
 
+        /**
         //build query
         MultiPhraseQuery.Builder builder = new MultiPhraseQuery.Builder();
         //extract words from queryString and save them to a term
@@ -50,9 +53,21 @@ public class TripleSearcher {
             Term term = new Term("document", keywords[i]);
             builder.add(term);
             builder.setSlop(SLOPFACTOR);
+        }**/
+
+
+        //experimental query
+        BooleanQuery.Builder bb = new BooleanQuery.Builder();
+        // for each keyword create own term query. Connect all subqueries via "AND"
+        for(String key : keywords){
+            Term t = new Term("document", key);
+            TermQuery tq = new TermQuery(t);
+            bb.add(tq, BooleanClause.Occur.MUST);
         }
 
-        TopDocs results = searcher.search(builder.build(), RESULTCOUNT);
+
+
+        TopDocs results = searcher.search(bb.build(), RESULTCOUNT);
 
         // just return the entities that documents match the query
 
