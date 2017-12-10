@@ -32,3 +32,7 @@ hs_err_pid*
 *.out
 /debug/
 /index/
+
+out/
+
+src/main/res/META-INF/
