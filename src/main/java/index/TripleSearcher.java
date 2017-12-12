@@ -60,6 +60,8 @@ public class TripleSearcher {
         BooleanQuery.Builder bb = new BooleanQuery.Builder();
         // for each keyword create own term query. Connect all subqueries via "AND"
         for(String key : keywords){
+            key = key.toLowerCase().trim();
+            key = key.replaceAll(" ","");
             Term t = new Term("document", key);
             TermQuery tq = new TermQuery(t);
             bb.add(tq, BooleanClause.Occur.MUST);
@@ -74,13 +76,13 @@ public class TripleSearcher {
         for (ScoreDoc doc : results.scoreDocs){
             Document resorce = reader.document(doc.doc);
             String entity = resorce.get("entity");
-            if(subclauseContainsOneKeyword(entity, keywords)){
+            if(subclauseContainsAllKeyword(entity, keywords)){
                 //try if the answer is a literal or an entity <=> the subordinate clause that contains a keyword contains ""
                 //split the document in sobordinate clauses
                 String [] keysWithoutEntityName = stringMinus(keywords, entity);
                 String [] subclauses = resorce.get("document").split(",");
                 for(String subclause : subclauses){
-                    if(subclauseContainsOneKeyword(subclause,keysWithoutEntityName)){
+                    if(subclauseContainsAllKeyword(subclause,keysWithoutEntityName)){
                         if(subclause.contains("\"")){
                             //extract literal
                             int start = StringUtils.ordinalIndexOf(subclause,"\"",1);
@@ -121,11 +123,11 @@ public class TripleSearcher {
         return false;
     }
 
-    private boolean subclauseContainsOneKeyword(String subclause, String [] keywords){
+    private boolean subclauseContainsAllKeyword(String subclause, String [] keywords){
         for(String keyword : keywords){
-            if(subclause.contains(keyword)) return true;
+            if(!subclause.contains(keyword)) return false;
         }
-        return false;
+        return true;
     }
 
     private String[] stringMinus(String [] keywords, String entity){

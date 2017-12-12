@@ -2,6 +2,7 @@ package controller;
 
 import index.Searcher;
 import index.TripleSearcher;
+import org.apache.commons.lang.StringUtils;
 import org.apache.jena.base.Sys;
 
 import java.io.IOException;
@@ -13,8 +14,16 @@ public class DocumentSearcher {
         String indexDir = System.getProperty("user.dir")+"/../index";
         try{
             searcher = new TripleSearcher(indexDir);
-            Set<String> results = searcher.searchInIndex(args);
-            printArray(args, "input:");
+            String input = "";
+            for(String s : args){
+                input += s +" ";
+            }
+            String keywords[] = input.split(",");
+            for(int i = 0; i < keywords.length;i++){
+                keywords[i] = keywords[i].trim();
+            }
+            Set<String> results = searcher.searchInIndex(keywords);
+            printArray(keywords, "input:");
             printSet(results, "output:");
         } catch (IOException e) {
             System.err.println("Could not open index!");
