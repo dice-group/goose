@@ -13,7 +13,7 @@ public class GeneratedDocument {
      */
     public GeneratedDocument(String entity, String uri, String document) throws IllegalArgumentException{
         //test wether entity is an URI
-        if(uri.contains("<http://dbpedia.org/resource/") && uri.endsWith(">")){
+        if(uri.contains("http://dbpedia.org/resource/")){
             this.uri = uri;
             this.entity = entity;
             this.document = document;
@@ -54,6 +54,6 @@ public class GeneratedDocument {
      */
     public static String generateURIOutOfTriple2NLLabel(String label){
         label =  label.replaceAll(" ", "_");
-        return "<http://dbpedia.org/resource/" + label +">";
+        return "http://dbpedia.org/resource/" + label;
     }
 }

@@ -56,6 +56,7 @@ public class TakeAll extends AbstractDocumentGenerator {
         String document = converter.convert(triples);
 
         try{
+
             GeneratedDocument gendoc = new GeneratedDocument(label,entity.getURI(), document);
 
             //debug
