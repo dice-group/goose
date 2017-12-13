@@ -15,12 +15,24 @@ import java.io.IOException;
 //https://github.com/dice-group/AGDISTIS/tree/master/src/main/java/org/aksw/agdistis/util
 public abstract class AbstractDocumentGenerator {
 
+	//query prefix for all extending classes
+	protected static final String PREFIX = "PREFIX dbo:<http://dbpedia.org/ontology/>\n" +
+			"PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n" +
+			"PREFIX vrank:<http://purl.org/voc/vrank#>\n";
+
 	/**
 	 * Initializes the DocumentGenerator. Creates indexer and other things.
 	 * @param indexPath
 	 * @throws IOException
 	 */
 	public abstract void init(String indexPath) throws IOException;
+
+	/**
+	 * Constructs the SPARQL-Query used to get the relationships for the specified resource uri
+	 * @param uri - the uri of the resource to query
+	 * @return String representing the query
+	 */
+	public abstract String getSPARQLQuery(String uri);
 
 	/**
 	 * Call when document generation is finished. Closes Indexer in other things.
@@ -53,5 +65,4 @@ public abstract class AbstractDocumentGenerator {
 		}
 		return node;
 	}
-
 }

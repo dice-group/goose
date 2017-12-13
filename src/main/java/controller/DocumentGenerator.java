@@ -8,6 +8,8 @@ import java.util.Properties;
 
 import documentGeneration.AbstractDocumentGenerator;
 import documentGeneration.takeAll.TakeAll;
+import documentGeneration.takeConsideringPagerank.TakeConsideringPagerank;
+import documentGeneration.takeOnlySPO.TakeOnlySPO;
 import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
 import org.aksw.jena_sparql_api.core.QueryExecutionFactoryDatasetGraph;
 import org.aksw.jena_sparql_api.delay.core.QueryExecutionFactoryDelay;
@@ -60,14 +62,14 @@ public static void main(String[] args) throws IOException {
 	qef = new QueryExecutionFactoryDelay(qef, 0);
 	qef = new QueryExecutionFactoryPaginated(qef, 1000);
 
-	String entityQuery = prefix + " select distinct ?s ?o where {?s rdfs:label ?o}";
+	String entityQuery = prefix + " select distinct ?s ?o where {?s rdfs:label ?o} LIMIT 1000";
 	QueryExecutionFactory entityEx = new QueryExecutionFactoryModel(db.getDefaultGraph());
 	QueryExecution exec = entityEx.createQueryExecution(entityQuery);
 
 	//get entities from entities model
 	ResultSet entResults = exec.execSelect();
 
-	AbstractDocumentGenerator generator = new TakeAll();
+	AbstractDocumentGenerator generator = new TakeConsideringPagerank(db.getDefaultGraph());
 	generator.init(System.getProperty("user.dir")+"/../index");
 
 	while(entResults.hasNext())
@@ -76,15 +78,9 @@ public static void main(String[] args) throws IOException {
 		Resource entity = qEntity.getResource("s");
 		if(DEBUG)
 			System.out.println(entity.getURI());
-		String queryString = prefix + "select distinct ?p ?o where {{<"+entity.getURI()+"> ?p ?o.} " +
-								"UNION {?o ?p <"+entity.getURI()+">.}\n" +
-								"MINUS {<"+entity.getURI()+"> dbo:abstract ?o}.\n" +
-								"MINUS {<"+entity.getURI()+"> dbo:wikiPageExternalLink ?o}.\n" +
-								"MINUS {<"+entity.getURI()+"> dbo:wikiPageID ?o}.\n" +
-								"MINUS {<"+entity.getURI()+"> dbo:wikiPageRevisionID ?o}.\n" +
-								"MINUS {<"+entity.getURI()+"> rdfs:comment ?o}.}";
+
 		//throw query at dbpedia
-		QueryExecution query = qef.createQueryExecution(queryString);
+		QueryExecution query = qef.createQueryExecution(generator.getSPARQLQuery(entity.getURI()));
 		ResultSet relations = query.execSelect();
 
 		//get label string
@@ -92,12 +88,8 @@ public static void main(String[] args) throws IOException {
 		if(DEBUG)
 			System.err.println("Label: " + label);
 		generator.generate(entity, relations, label);
-		//get document from generator.generate() and throw it into lucene
 	}
-			
-	//Speichern der Dokumente 
-	//a) LUCENE/Elasticsearch 
-	//b) einfach in Dateien/Hashmap
+
 	generator.finish();
 	db.close();
 	}
