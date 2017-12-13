@@ -1,7 +1,9 @@
 package index;
 
 import documentGeneration.GeneratedDocument;
+import edu.stanford.nlp.ling.tokensregex.PhraseTable;
 import org.apache.commons.lang.StringUtils;
+import org.apache.jena.base.Sys;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -41,48 +43,35 @@ public class TripleSearcher {
     public Set<String> searchInIndex(String [] keywords) throws IOException {
         Set<String> answers = new TreeSet<String>();
 
-        /**
-        //build query
-        MultiPhraseQuery.Builder builder = new MultiPhraseQuery.Builder();
-        //extract words from queryString and save them to a term
-        for (int i = 0; i < keywords.length; i++) {
-            //TODO find all synonyms
-            //add the word and synonyms to the builder
-            //lowercase all keywords
-            keywords[i] = keywords[i].toLowerCase().trim();
-            Term term = new Term("document", keywords[i]);
-            builder.add(term);
-            builder.setSlop(SLOPFACTOR);
-        }**/
-
-
-        //experimental query
         BooleanQuery.Builder bb = new BooleanQuery.Builder();
         // for each keyword create own term query. Connect all subqueries via "AND"
+
         for(String key : keywords){
-            key = key.toLowerCase().trim();
-            key = key.replaceAll(" ","");
-            Term t = new Term("document", key);
-            TermQuery tq = new TermQuery(t);
-            bb.add(tq, BooleanClause.Occur.MUST);
+            String words [] = key.split(" ");
+                PhraseQuery.Builder pb = new PhraseQuery.Builder();
+                for(String word : words){
+                    System.out.println(word);
+                    word = word.toLowerCase().trim();
+                    Term t  = new Term("document", word);
+                    pb.add(t);
+                }
+                bb.add(pb.build(), BooleanClause.Occur.MUST);
         }
 
-
-
-        TopDocs results = searcher.search(bb.build(), RESULTCOUNT);
-
+        BooleanQuery bq = bb.build();
+        TopDocs results = searcher.search(bq, RESULTCOUNT);
         // just return the entities that documents match the query
 
         for (ScoreDoc doc : results.scoreDocs){
             Document resorce = reader.document(doc.doc);
             String entity = resorce.get("entity");
-            if(subclauseContainsAllKeyword(entity, keywords)){
+            if(keywordEqaulsResult(keywords, entity)){
                 //try if the answer is a literal or an entity <=> the subordinate clause that contains a keyword contains ""
                 //split the document in sobordinate clauses
                 String [] keysWithoutEntityName = stringMinus(keywords, entity);
                 String [] subclauses = resorce.get("document").split(",");
                 for(String subclause : subclauses){
-                    if(subclauseContainsAllKeyword(subclause,keysWithoutEntityName)){
+                    if(subclauseContainsAllKeyword(subclause, keysWithoutEntityName)){
                         if(subclause.contains("\"")){
                             //extract literal
                             int start = StringUtils.ordinalIndexOf(subclause,"\"",1);
@@ -102,7 +91,10 @@ public class TripleSearcher {
                                 }
                             }
                             //add URI to answers
-                            answers.add(GeneratedDocument.generateURIOutOfTriple2NLLabel(sentence.substring(firstUpperCaseLetter-1)));
+                            if(firstUpperCaseLetter != -1) {
+                                answers.add(GeneratedDocument.generateURIOutOfTriple2NLLabel(sentence.substring(firstUpperCaseLetter)));
+                            }
+
                         }
 
 
@@ -118,7 +110,7 @@ public class TripleSearcher {
 
     private boolean keywordEqaulsResult(String [] keywords, String entity){
         for(String keyword : keywords){
-            if(keyword.equals(entity)) return true;
+            if(entity.equals(keyword)) return true;
         }
         return false;
     }
@@ -131,10 +123,9 @@ public class TripleSearcher {
     }
 
     private String[] stringMinus(String [] keywords, String entity){
-        entity = entity.toLowerCase();
         ArrayList<String> result = new ArrayList<>();
         for(String keyword : keywords){
-            if(!entity.contains(keyword)){
+            if(!keyword.contains(entity)){
                 result.add(keyword);
             }
         }

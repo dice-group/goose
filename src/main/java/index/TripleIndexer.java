@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import documentGeneration.GeneratedDocument;
 
+import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.document.Document;
@@ -31,7 +32,7 @@ public class TripleIndexer {
         // directory for the indexer
         FSDirectory indexDict = FSDirectory.open(Paths.get(pathToIndex));
         //create indexer with standard conifg
-        IndexWriterConfig conf = new IndexWriterConfig(new WhitespaceAnalyzer());
+        IndexWriterConfig conf = new IndexWriterConfig(new SimpleAnalyzer());
         writer = new IndexWriter(indexDict, conf);
     }
 
