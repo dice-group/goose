@@ -44,6 +44,11 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers-common</artifactId>
+            <version>LATEST</version>
+        </dependency>
+        <dependency>
             <groupId>org.aksw.qa</groupId>
             <artifactId>commons</artifactId>
             <version>0.4.14</version>
@@ -59,6 +64,10 @@
                 <exclusion>
                     <artifactId>slf4j-api</artifactId>
                     <groupId>org.slf4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>lucene-analyzers-common</artifactId>
+                    <groupId>org.apache.lucene</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -86,6 +95,14 @@
                 <exclusion>
                     <groupId>org.slf4j</groupId>
                     <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>lucene-core</artifactId>
+                    <groupId>org.apache.lucene</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>lucene-analyzers-common</artifactId>
+                    <groupId>org.apache.lucene</groupId>
                 </exclusion>
             </exclusions>
         </dependency>

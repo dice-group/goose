@@ -2,9 +2,12 @@ package index;
 
 import java.io.*;
         import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import documentGeneration.GeneratedDocument;
+
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.document.Document;
         import org.apache.lucene.document.Field;
         import org.apache.lucene.document.TextField;
@@ -28,7 +31,7 @@ public class TripleIndexer {
         // directory for the indexer
         FSDirectory indexDict = FSDirectory.open(Paths.get(pathToIndex));
         //create indexer with standard conifg
-        IndexWriterConfig conf = new IndexWriterConfig(new WhitespaceAnalyzer(Version.LATEST));
+        IndexWriterConfig conf = new IndexWriterConfig(new WhitespaceAnalyzer());
         writer = new IndexWriter(indexDict, conf);
     }
 
