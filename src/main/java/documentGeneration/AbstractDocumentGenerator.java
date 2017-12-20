@@ -28,6 +28,14 @@ public abstract class AbstractDocumentGenerator {
 	public abstract void init(String indexPath) throws IOException;
 
 	/**
+	 * Initializes the DocumentGenerator. Creates indexer and other things and gives indices numbers.
+	 * @param indexPath - path to index root directory
+	 * @param indexNumber - name of directory of index with that indexNumber
+	 * @throws IOException
+	 */
+	public abstract void init(String indexPath, int indexNumber) throws IOException;
+
+	/**
 	 * Constructs the SPARQL-Query used to get the relationships for the specified resource uri
 	 * @param uri - the uri of the resource to query
 	 * @return String representing the query

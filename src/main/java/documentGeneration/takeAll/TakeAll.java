@@ -26,11 +26,20 @@ public class TakeAll extends AbstractDocumentGenerator {
 
     private TripleIndexer indexer;
     private TripleConverter converter;
-
+    private String debugPath;
 
     @Override
     public void init(String indexPath) throws IOException {
         indexer = new TripleIndexer(indexPath);
+        debugPath = indexPath.substring(0, indexPath.lastIndexOf(File.separator))+"/debug";
+        converter = new TripleConverter();
+    }
+
+    @Override
+    public void init(String indexPath, int indexNumber) throws IOException
+    {
+        indexer = new TripleIndexer(indexPath+"/" + indexNumber);
+        debugPath = indexPath + "/debug/" + indexNumber;
         converter = new TripleConverter();
     }
 
@@ -89,7 +98,7 @@ public class TakeAll extends AbstractDocumentGenerator {
 
             if(controller.DocumentGenerator.DEBUG){
                 label = label.replaceAll("/","_");
-                File f = new File(System.getProperty("user.dir") + "/../debug/" + label);
+                File f = new File(debugPath + "/" + label);
                 if(f.getParentFile() != null)
                     f.getParentFile().mkdirs();
                 f.createNewFile();
