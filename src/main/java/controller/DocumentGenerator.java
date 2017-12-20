@@ -31,7 +31,7 @@ import org.apache.log4j.PropertyConfigurator;
 
 public class DocumentGenerator {
 
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 	private static final String prefix = "PREFIX dbo:<http://dbpedia.org/ontology/>\n" +
 									     "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n";
 	public static void main(String[] args) throws IOException
