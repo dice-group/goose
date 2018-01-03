@@ -10,6 +10,7 @@ import documentGeneration.AbstractDocumentGenerator;
 import documentGeneration.takeAll.TakeAll;
 import documentGeneration.takeConsideringPagerank.TakeConsideringPagerank;
 import documentGeneration.takeOnlySPO.TakeOnlySPO;
+import index.OTFIndexer;
 import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
 import org.aksw.jena_sparql_api.core.QueryExecutionFactoryDatasetGraph;
 import org.aksw.jena_sparql_api.delay.core.QueryExecutionFactoryDelay;
@@ -17,6 +18,7 @@ import org.aksw.jena_sparql_api.http.QueryExecutionFactoryHttp;
 import org.aksw.jena_sparql_api.model.QueryExecutionFactoryModel;
 import org.aksw.jena_sparql_api.pagination.core.QueryExecutionFactoryPaginated;
 import org.apache.commons.io.FileUtils;
+import org.apache.jena.base.Sys;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
@@ -27,11 +29,13 @@ import org.apache.jena.tdb.base.file.Location;
 import org.apache.jena.tdb.setup.DatasetBuilderStd;
 import org.apache.jena.tdb.store.DatasetGraphTDB;
 import org.apache.log4j.PropertyConfigurator;
+import org.openrdf.query.algebra.Str;
 
 
 public class DocumentGenerator {
 
-	public static boolean DEBUG = false;
+	public static final boolean DEBUG = false;
+	public static final boolean OTFMODE = true;
 	private static final String prefix = "PREFIX dbo:<http://dbpedia.org/ontology/>\n" +
 									     "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n";
 	public static void main(String[] args) throws IOException
@@ -80,12 +84,29 @@ public class DocumentGenerator {
 			ResultSet entResults = exec.execSelect();
 			AbstractDocumentGenerator generator = null;
 
+			if(OTFMODE){
+				OTFIndexer otf = new OTFIndexer(indexDir.getPath());
+				QuerySolution qEntity = null;
+				for(int cnt = 1; entResults.hasNext(); cnt++){
+					qEntity = entResults.next();
+					String uri = qEntity.getResource("s").getURI();
+					String label = qEntity.get("o").asLiteral().getLexicalForm();
+					otf.addDocumentToIndex(label, uri);
+					if(cnt % 10000 == 0){
+						System.out.println(cnt);
+					}
+				}
+				otf.closeIndex();
+				break;
+			}
+
 			if(i==0)
 				generator = new TakeConsideringPagerank(db.getDefaultGraph());
 			else
 				generator = new TakeOnlySPO();
 
 			generator.init(indexDir.getAbsolutePath(), i);
+
 
 			while (entResults.hasNext()) {
 				QuerySolution qEntity = entResults.nextSolution();
