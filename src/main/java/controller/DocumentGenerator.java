@@ -34,7 +34,7 @@ import org.openrdf.query.algebra.Str;
 
 public class DocumentGenerator {
 
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 	public static final boolean OTFMODE = true;
 	private static final String prefix = "PREFIX dbo:<http://dbpedia.org/ontology/>\n" +
 									     "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n";

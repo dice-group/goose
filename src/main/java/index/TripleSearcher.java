@@ -61,7 +61,7 @@ public class TripleSearcher {
         BooleanQuery bq = bb.build();
         TopDocs results = searcher.search(bq, RESULTCOUNT);
         // just return the entities that documents match the query
-
+        System.out.println(results.totalHits);
         for (ScoreDoc doc : results.scoreDocs){
             Document resorce = reader.document(doc.doc);
             String entity = resorce.get("entity");
@@ -101,8 +101,15 @@ public class TripleSearcher {
 
                     }
                 }
-            } else // just add the entity as URI to the results
-                answers.add(resorce.get("uri"));
+            } else { //test if one subclause contains all keywords
+                String [] sub = resorce.get("document").split(",");
+                for(String clause : sub){
+                    if(subclauseContainsAllKeyword(clause, keywords))
+                        answers.add(resorce.get("uri"));
+                }
+
+            }
+
         }
 
         return answers;
