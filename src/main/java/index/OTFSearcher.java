@@ -77,6 +77,7 @@ public class OTFSearcher {
         TopDocs rs = searcher.search(bq, RESULTCOUNT);
 
         for(ScoreDoc doc : rs.scoreDocs){
+            //workaround
             answers.add(reader.document(doc.doc).get("uri"));        }
 
         return answers;
@@ -107,7 +108,8 @@ public class OTFSearcher {
         qef = new QueryExecutionFactoryPaginated(qef, 1000);
 
         generator.init(pathToOTFIndex);
-        System.out.println("-----GENERATE-----");
+        if(DEBUG)
+            System.out.println("-----GENERATE-----");
         for(Resource uri : related){
             String label;
             ResultSet relations;
@@ -121,7 +123,8 @@ public class OTFSearcher {
             }
             label = labels.nextSolution().getLiteral("l").getLexicalForm();
             relations = qef.createQueryExecution(generator.getSPARQLQuery(uri.getURI())).execSelect();
-            System.out.println(uri.getURI() + " : " + label + " : "+ relations.hasNext());
+            if(DEBUG)
+                System.out.println(uri.getURI() + " : " + label);
 
             generator.generate(uri, relations, label);
 
