@@ -11,7 +11,12 @@ import java.util.List;
 import java.util.Set;
 
 public class Evaluation {
+
+	private static final boolean OTFMode = true;
+
 	public static void main(String[] args) {
+
+
 		// Laden von QALD 7 train multilingual mittels NLIWOD/qa.commons
 		// https://github.com/dice-group/NLIWOD/tree/master/qa.commons
 		// https://github.com/dice-group/NLIWOD/blob/master/qa.commons/src/test/java/org/aksw/qa/commons/load/LoadTest.java

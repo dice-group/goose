@@ -43,7 +43,7 @@ public abstract class AbstractDocumentGenerator {
 	public abstract String getSPARQLQuery(String uri);
 
 	/**
-	 * Call when document generation is finished. Closes Indexer in other things.
+	 * Call when document generation is finished. Closes Indexer and other things.
 	 * @throws IOException
 	 */
 	public abstract void finish() throws IOException;
