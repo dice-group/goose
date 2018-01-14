@@ -6,6 +6,7 @@ import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
 import org.aksw.jena_sparql_api.delay.core.QueryExecutionFactoryDelay;
 import org.aksw.jena_sparql_api.model.QueryExecutionFactoryModel;
 import org.aksw.jena_sparql_api.pagination.core.QueryExecutionFactoryPaginated;
+import org.apache.commons.io.FileUtils;
 import org.apache.jena.base.Sys;
 import org.apache.jena.query.QueryExecution;
 
@@ -28,6 +29,8 @@ import org.apache.lucene.store.FSDirectory;
 import org.openrdf.query.algebra.Str;
 
 
+import javax.swing.plaf.FileChooserUI;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashSet;
@@ -47,11 +50,16 @@ public class OTFSearcher {
 
     private final static boolean DEBUG = DocumentGenerator.DEBUG;
 
+    private final AbstractDocumentGenerator generator;
+
     /**
-     * Sets up the Searcher.
+     * Sets up the OTFSearcher.
+     * @param pathToIndex Path to index in that the index with labels and uris is stored.
+     * @param pathToOTFIndex Path to index that will be created during the search.
+     * @param pathToTDB Path to the tdb that holds all the data.
      * @throws IOException
      */
-    public OTFSearcher(String pathToIndex, String pathToOTFIndex, String pathToTDB) throws IOException {
+    public OTFSearcher(String pathToIndex, String pathToOTFIndex, String pathToTDB, AbstractDocumentGenerator generator) throws IOException {
         //open directory of the index
         FSDirectory indexDict = FSDirectory.open(Paths.get(pathToIndex));
         //create new indexsearcher for the index
@@ -59,19 +67,24 @@ public class OTFSearcher {
         searcher = new IndexSearcher(reader);
         //load Database
         db = DatasetBuilderStd.create(Location.create(pathToTDB));
+        //remove old otfindex
         this.pathToOTFIndex = pathToOTFIndex;
+        FileUtils.deleteDirectory(new File(pathToOTFIndex));
+        this.generator = generator;
     }
 
-    public Set<String> urisToEntityName(String [] entityNames) throws IOException {
+    private Set<String> urisToEntityName(String [] entityNames) throws IOException {
         Set<String> answers = new TreeSet<>();
 
         BooleanQuery.Builder bb = new BooleanQuery.Builder();
         for(String name : entityNames){
-            PhraseQuery.Builder pb = new PhraseQuery.Builder();
-            for(String part : name.split(" ")){
-                pb.add(new Term("label", part.toLowerCase()));
+            if(Character.isUpperCase(name.trim().charAt(0))){
+                PhraseQuery.Builder pb = new PhraseQuery.Builder();
+                for(String part : name.split(" ")){
+                    pb.add(new Term("label", part.toLowerCase()));
+                }
+                bb.add(pb.build(), BooleanClause.Occur.SHOULD);
             }
-            bb.add(pb.build(), BooleanClause.Occur.SHOULD);
         }
         BooleanQuery bq = bb.build();
         TopDocs rs = searcher.search(bq, RESULTCOUNT);
@@ -83,7 +96,13 @@ public class OTFSearcher {
         return answers;
     }
 
-    public Set<String> search(String [] keywords, AbstractDocumentGenerator generator) throws IOException{
+    /**
+     * Searches for the keywords by generating a subset of DBpedia corresponding to the entity mentioned in keywords.
+     * @param keywords Keywords which will be searched for.
+     * @return Set of Strings as answers.
+     * @throws IOException
+     */
+    public Set<String> search(String [] keywords) throws IOException{
         //1. get all URI associated with the question
         Set<String> uris = urisToEntityName(keywords);
         if(DEBUG){
@@ -107,6 +126,8 @@ public class OTFSearcher {
         qef = new QueryExecutionFactoryDelay(qef, 0);
         qef = new QueryExecutionFactoryPaginated(qef, 1000);
 
+        System.out.println(related.size());
+
         generator.init(pathToOTFIndex);
         if(DEBUG)
             System.out.println("-----GENERATE-----");
@@ -119,7 +140,7 @@ public class OTFSearcher {
             QueryExecution exec = qef.createQueryExecution(labelQuery);
             ResultSet labels = exec.execSelect();
             if(!labels.hasNext()){
-                continue;
+               continue;
             }
             label = labels.nextSolution().getLiteral("l").getLexicalForm();
             relations = qef.createQueryExecution(generator.getSPARQLQuery(uri.getURI())).execSelect();
@@ -129,9 +150,7 @@ public class OTFSearcher {
             generator.generate(uri, relations, label);
 
         }
-
         generator.finish();
-        db.close();
         if(DEBUG){
             System.out.println("-----DEBUG-----");
         }
@@ -161,12 +180,13 @@ public class OTFSearcher {
     }
 
     /**
-     * Close all resources when task is finished
+     * Closes index and databases. Call after search is finished.
      * @throws IOException
      */
     public void close() throws IOException {
         db.close();
         reader.close();
+        generator.finish();
     }
 
 }

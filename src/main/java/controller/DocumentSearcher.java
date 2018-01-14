@@ -20,7 +20,7 @@ public class DocumentSearcher {
             String otfDir = System.getProperty("user.dir")+"/../otfindex";
             String tdbDir = System.getProperty("user.dir")+"/../tdb";
             try {
-                OTFSearcher searcher = new OTFSearcher(otfDir, indexDir, tdbDir);
+                OTFSearcher searcher = new OTFSearcher(indexDir, otfDir, tdbDir, new TakeOnlySPO());
                 String input = "";
                 for(String s : args){
                     input += s +" ";
@@ -29,7 +29,7 @@ public class DocumentSearcher {
                 for(int i = 0; i < keywords.length;i++){
                     keywords[i] = keywords[i].trim();
                 }
-                Set<String> results = searcher.search(keywords, new TakeOnlySPO());
+                Set<String> results = searcher.search(keywords);
                 printArray(keywords, "input:");
                 printSet(results, "output:");
             } catch (IOException e) {

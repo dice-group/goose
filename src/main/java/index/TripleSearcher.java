@@ -50,22 +50,20 @@ public class TripleSearcher {
             String words [] = key.split(" ");
                 PhraseQuery.Builder pb = new PhraseQuery.Builder();
                 for(String word : words){
-                    System.out.println(word);
                     word = word.toLowerCase().trim();
                     Term t  = new Term("document", word);
                     pb.add(t);
                 }
                 bb.add(pb.build(), BooleanClause.Occur.MUST);
         }
-
         BooleanQuery bq = bb.build();
         TopDocs results = searcher.search(bq, RESULTCOUNT);
         // just return the entities that documents match the query
-        System.out.println(results.totalHits);
         for (ScoreDoc doc : results.scoreDocs){
             Document resorce = reader.document(doc.doc);
             String entity = resorce.get("entity");
-            if(keywordEqaulsResult(keywords, entity)){
+
+            if(resultContainsOneKeyWord(keywords, entity)){
                 //try if the answer is a literal or an entity <=> the subordinate clause that contains a keyword contains ""
                 //split the document in sobordinate clauses
                 String [] keysWithoutEntityName = stringMinus(keywords, entity);
@@ -102,9 +100,9 @@ public class TripleSearcher {
                     }
                 }
             } else { //test if one subclause contains all keywords
-                String [] sub = resorce.get("document").split(",");
-                for(String clause : sub){
-                    if(subclauseContainsAllKeyword(clause, keywords))
+                String[] sub = resorce.get("document").split(",");
+                for (String clause : sub) {
+                    if (subclauseContainsAllKeyword(clause, keywords))
                         answers.add(resorce.get("uri"));
                 }
 
@@ -113,6 +111,14 @@ public class TripleSearcher {
         }
 
         return answers;
+    }
+
+    private boolean resultContainsOneKeyWord(String[] keywords, String entity) {
+        for(String word : keywords){
+            if(entity.contains(word))
+                return true;
+        }
+        return false;
     }
 
     private boolean keywordEqaulsResult(String [] keywords, String entity){

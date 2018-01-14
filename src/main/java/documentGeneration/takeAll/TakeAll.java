@@ -4,6 +4,7 @@ import documentGeneration.GeneratedDocument;
 import documentGeneration.AbstractDocumentGenerator;
 import index.TripleIndexer;
 import org.aksw.triple2nl.TripleConverter;
+import org.apache.jena.base.Sys;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
@@ -84,15 +85,22 @@ public class TakeAll extends AbstractDocumentGenerator {
     public void generate(Resource entity, ResultSet relations, String label) throws IOException {
         //?p ?o
 
+        //System.out.println(entity);
+
         Node subject = NodeFactory.createURI(entity.getURI());
 
+        //System.out.println(label);
         //create list of triples and convert them to document
         String document = converter.convert(generateTripleList(subject, relations));
 
-        try{
+           // System.out.println(document);
 
+
+
+        try{
             GeneratedDocument gendoc = new GeneratedDocument(label,entity.getURI(), document);
 
+            /**
             //debug
             if (subject.getLocalName().equals("")) return;
 
@@ -106,7 +114,7 @@ public class TakeAll extends AbstractDocumentGenerator {
                 fs.write(gendoc.getDocument().getBytes());
                 fs.close();
                 //debug
-            }
+            }**/
             indexer.addDocumentToIndex(gendoc);
 
         } catch(IllegalArgumentException ia){

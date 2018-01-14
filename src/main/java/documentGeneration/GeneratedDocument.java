@@ -13,13 +13,11 @@ public class GeneratedDocument {
      */
     public GeneratedDocument(String entity, String uri, String document) throws IllegalArgumentException{
         //test wether entity is an URI
-        if(uri.contains("http://dbpedia.org/resource/")){
+
             this.uri = uri;
             this.entity = entity;
             this.document = document;
-        }else {
-            throw new IllegalArgumentException("Argument entity has to be URI with prefix<http://dbpedia.org/resource/entity>");
-        }
+
 
     }
 
