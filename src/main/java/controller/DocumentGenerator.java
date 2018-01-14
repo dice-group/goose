@@ -74,8 +74,8 @@ public class DocumentGenerator {
 		qef = new QueryExecutionFactoryPaginated(qef, 1000);
 
 
-		//generating documents for two strategies
-		for (int i = 0; i < 2; i++) {
+		//generating documents for two strategies or OTFMODE
+		for (int i = 0; i < (OTFMODE ? 1 : 2); i++) {
 			String entityQuery = prefix + " select distinct ?s ?o where {?s rdfs:label ?o}";
 			QueryExecutionFactory entityEx = new QueryExecutionFactoryModel(db.getDefaultGraph());
 			QueryExecution exec = entityEx.createQueryExecution(entityQuery);
@@ -122,7 +122,14 @@ public class DocumentGenerator {
 				String label = qEntity.get("o").asLiteral().getLexicalForm();
 				if (DEBUG)
 					System.err.println("Label: " + label);
-				generator.generate(entity, relations, label);
+				
+				try {
+					generator.generate(entity, relations, label);
+				}catch(Exception e)
+				{
+					e.printStackTrace();
+					System.out.println("Continuing..");
+				}
 			}
 
 			generator.finish();
