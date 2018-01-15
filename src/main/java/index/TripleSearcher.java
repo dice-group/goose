@@ -26,6 +26,7 @@ public class TripleSearcher {
 
     private final int RESULTCOUNT = 1000;
     private final int SLOPFACTOR = 10000;
+    private final HashMap<String, ArrayList<String>> synonymTable;
     private IndexSearcher searcher;
     private IndexReader reader;
 
@@ -34,6 +35,9 @@ public class TripleSearcher {
      * @throws IOException
      */
     public TripleSearcher(String pathToIndex, Directory indexDict) throws IOException {
+        synonymTable = new HashMap<>();
+        createSynonymTable();
+
         //open directory of the index
         if(indexDict == null){
             indexDict = FSDirectory.open(Paths.get(pathToIndex));
@@ -44,6 +48,8 @@ public class TripleSearcher {
 
         searcher = new IndexSearcher(reader);
     }
+
+
 
     public Set<String> searchInIndex(String [] keywords) throws IOException {
         //keyword search with one keyword doesn't make sense at all
@@ -229,7 +235,14 @@ public class TripleSearcher {
     }
 
     public String [] getSynomyms(String word){
-        String [] synonyms = {word};
+        ArrayList<String> tmp = synonymTable.get(word);
+        if(tmp == null){
+            String [] res = new String[1];
+            res[0] = word;
+            return res;
+        }
+        tmp.add(word);
+        String [] synonyms = (String [])tmp.toArray();
         return synonyms;
     }
 
@@ -330,4 +343,190 @@ public class TripleSearcher {
 
         return results;
     }
+
+    private void createSynonymTable() {
+        ArrayList<String> tmp = new ArrayList<>();
+        tmp.add("part of");
+        synonymTable.put("borough", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("spouse");
+        synonymTable.put("wife", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("spouse");
+        synonymTable.put("husband", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("spouse");
+        synonymTable.put("married to", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("spouse");
+        synonymTable.put("married", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("located");
+        synonymTable.put("location", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("parent");
+        synonymTable.put("parents", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("parent");
+        synonymTable.put("father", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("parent");
+        synonymTable.put("mother", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("doctoral advisor");
+        synonymTable.put("doctoral supervisor", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("architect");
+        synonymTable.put("design", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("battle");
+        synonymTable.put("military conflict", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("leader");
+        synonymTable.put("king", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("developer");
+        synonymTable.put("devolopers", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("musical");
+        synonymTable.put("musicals", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("host");
+        synonymTable.put("presenter", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("death cause");
+        synonymTable.put("die", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("child");
+        synonymTable.put("daughter", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("child");
+        synonymTable.put("son", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("birth place");
+        synonymTable.put("born", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("subdivision name");
+        synonymTable.put("country", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("product");
+        synonymTable.put("produce", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("hovercraft");
+        synonymTable.put("hovercrafts", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("source country");
+        synonymTable.put("start", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("director");
+        synonymTable.put("direct", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("leader");
+        synonymTable.put("president", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("author");
+        synonymTable.put("created", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("target airport");
+        tmp.add("source airport");
+        synonymTable.put("airports", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("movie");
+        tmp.add("film");
+        tmp.add("television");
+        synonymTable.put("movies", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("nick");
+        tmp.add("nickname");
+        synonymTable.put("called", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("publisher");
+        synonymTable.put("publish", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("founded place");
+        synonymTable.put("founded", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("portrayer");
+        tmp.add("starring");
+        tmp.add("played");
+        synonymTable.put("play", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("abbreviation");
+        synonymTable.put("stand for", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("headquarter");
+        synonymTable.put("headquarters", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("location");
+        synonymTable.put("city", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("ingedient");
+        synonymTable.put("ingedients", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("writer");
+        synonymTable.put("write", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("creator");
+        synonymTable.put("create", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("crosses");
+        synonymTable.put("cross", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("author");
+        synonymTable.put("wrote", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("painter");
+        tmp.add("author");
+        synonymTable.put("paint", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("route end");
+        synonymTable.put("ends", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("presenter");
+        synonymTable.put("host", tmp);
+    }
 }
+
