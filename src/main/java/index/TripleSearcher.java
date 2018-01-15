@@ -5,6 +5,7 @@ import edu.stanford.nlp.ling.tokensregex.PhraseTable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.jena.base.Sys;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
+import org.apache.lucene.analysis.util.CharacterUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -19,9 +20,7 @@ import org.openrdf.query.parser.QueryParser;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public class TripleSearcher {
 
@@ -229,4 +228,82 @@ public class TripleSearcher {
         return false;
     }
 
+    public String [] getSynomyms(String word){
+        String [] synonyms = {word};
+        return synonyms;
+    }
+
+    public Map<String, String> searchWith2Keywords(String keyword1, String keyword2){
+        HashMap<String, String> results = new HashMap<>();
+
+        keyword1 = keyword1.trim();
+        keyword2 = keyword2.trim();
+        try{
+            String[] synonyms1 = getSynomyms(keyword1);
+            String[] synonyms2 = getSynomyms(keyword2);
+
+            //build query
+            BooleanQuery.Builder bqBuilder= new BooleanQuery.Builder();
+            MultiPhraseQuery.Builder mqBuilder1 = new MultiPhraseQuery.Builder();
+            MultiPhraseQuery.Builder mqBuilder2 = new MultiPhraseQuery.Builder();
+
+            //add synonyms to the query
+            for(String syn : synonyms1){
+                mqBuilder1.add(new Term("document", syn.toLowerCase()));
+            }
+            for(String syn : synonyms2){
+                mqBuilder1.add(new Term("document", syn.toLowerCase()));
+            }
+
+            bqBuilder.add(mqBuilder1.build(), BooleanClause.Occur.MUST);
+            bqBuilder.add(mqBuilder2.build(), BooleanClause.Occur.MUST);
+
+            BooleanQuery query = bqBuilder.build();
+
+            // query index
+
+            TopDocs matchingDocs = searcher.search(query, RESULTCOUNT);
+
+            // post process answers
+
+            String entityFromKeywords = Character.isUpperCase(keyword1.charAt(0)) ?  keyword1 : keyword2;
+            String nonEntityFromKeywords = Character.isUpperCase(keyword1.charAt(0)) ?  keyword2 : keyword1;
+
+            for (ScoreDoc doc : matchingDocs.scoreDocs){
+                String entityFromDocument = reader.document(doc.doc).get("entity");
+                String uriFromDocument = reader.document(doc.doc).get("uri");
+                String documentFromDocument = reader.document(doc.doc).get("document");
+
+                //if entity name is corresponding to the found document try to extract teh righthandside of
+                // a relation
+                if(entityFromDocument.contains(entityFromKeywords) ||(entityFromKeywords.contains(entityFromDocument))){
+                    // split document into chunks and search if the non entity keyword occurs in a chunk
+                    String [] chunks = documentFromDocument.split(",|.");
+                    for(String chunk : chunks){
+                        if(chunk.contains(nonEntityFromKeywords)){
+
+                            int start = StringUtils.ordinalIndexOf(chunk,"\"",1);
+                            int end = StringUtils.ordinalIndexOf(chunk,"\"",2);
+                            if(start == -1 || end == -1) continue;
+                            String extractedEntity = chunk.substring(start+1, end);
+                            results.put(GeneratedDocument.generateURIOutOfTriple2NLLabel(extractedEntity), extractedEntity);
+                        }
+                    }
+                }
+                //entity is not in the document title return
+                else{
+                    String [] chunks = documentFromDocument.split(",|.");
+                    for(String chunk : chunks){
+                        if(chunk.contains(nonEntityFromKeywords) && chunk.contains(entityFromKeywords))
+                            results.put(uriFromDocument, entityFromDocument);
+                    }
+                }
+            }
+        } catch (IOException io){
+            //if searcher throws io exception return an empty set
+            return new HashMap<>();
+        }
+
+        return results;
+    }
 }
