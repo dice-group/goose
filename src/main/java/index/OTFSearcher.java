@@ -7,6 +7,7 @@ import org.aksw.jena_sparql_api.delay.core.QueryExecutionFactoryDelay;
 import org.aksw.jena_sparql_api.model.QueryExecutionFactoryModel;
 import org.aksw.jena_sparql_api.pagination.core.QueryExecutionFactoryPaginated;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.jena.base.Sys;
 import org.apache.jena.query.QueryExecution;
 
@@ -253,6 +254,7 @@ public class OTFSearcher {
         HashSet<Resource> related = new HashSet<>();
         QueryExecutionFactory entityEx = new QueryExecutionFactoryModel(db.getDefaultGraph());
         for(String uri : uris){
+            if(uri.toString().contains("\"")) continue;
             String entityQuery = prefix + "select distinct ?s where {?s ?b <"+ uri +">}";
             QueryExecution exec = entityEx.createQueryExecution(entityQuery);
             ResultSet ent = exec.execSelect();
