@@ -122,6 +122,24 @@ public class OTFSearcher {
             }
         }
         //3. generate all documents for entities in toBeGenerated and store them in the OTFIndex
+        Directory otframdir = generateDocuments(related);
+        if(DEBUG){
+            System.out.println("-----DEBUG-----");
+        }
+        //5. return answers from TripleSearcher
+        TripleSearcher tripleSearcher = new TripleSearcher(pathToOTFIndex, otframdir);
+
+        return executeSearch(tripleSearcher, keywords);
+    }
+
+    /**
+     * This method generates all documents and adds them to the index
+     * @param related - the uris to create documents for
+     * @return path to otf RAM dir
+     * @throws IOException
+     */
+    public Directory generateDocuments(Set<Resource> related) throws IOException
+    {
         QueryExecutionFactory qef = new QueryExecutionFactoryModel(db.getDefaultGraph());
         qef = new QueryExecutionFactoryDelay(qef, 0);
         qef = new QueryExecutionFactoryPaginated(qef, 1000);
@@ -142,7 +160,7 @@ public class OTFSearcher {
             QueryExecution exec = qef.createQueryExecution(labelQuery);
             ResultSet labels = exec.execSelect();
             if(!labels.hasNext()){
-               continue;
+                continue;
             }
             label = labels.nextSolution().getLiteral("l").getLexicalForm();
             relations = qef.createQueryExecution(generator.getSPARQLQuery(uri.getURI())).execSelect();
@@ -153,19 +171,12 @@ public class OTFSearcher {
             } catch (Exception e){
 
             }
-
-
         }
         Directory otframdir = generator.getIndexer().getIndexDict();
 
         generator.finish();
-        if(DEBUG){
-            System.out.println("-----DEBUG-----");
-        }
-        //5. return answers from TripleSearcher
-        TripleSearcher tripleSearcher = new TripleSearcher(pathToOTFIndex, otframdir);
 
-        return executeSearch(tripleSearcher, keywords);
+        return otframdir;
     }
 
     /**
@@ -174,7 +185,7 @@ public class OTFSearcher {
      * @param keywords - the keywords to be searched for
      * @return - a set of results
      */
-    private Set<String> executeSearch(TripleSearcher t, String[] keywords)
+    private Set<String> executeSearch(TripleSearcher t, String[] keywords) throws IOException
     {
         if(keywords.length < 2)
             return new TreeSet<>();
@@ -191,10 +202,44 @@ public class OTFSearcher {
             }
 
             if(!tmp.keySet().isEmpty())
+            {
+                generateFurtherDocuments(tmp.keySet());
                 results = tmp;
+            }
+        }
+
+        if(!results.keySet().isEmpty())
+            return results.keySet();
+
+        //reverse if nothing found
+        for(int i=keywords.length-1; i>= 2; i--)
+        {
+            Map<String, String> tmp = new HashMap<>();
+
+            for (String result : results.keySet())
+            {
+                tmp.putAll(t.searchWith2Keywords(results.get(result), keywords[i]));
+            }
+
+            if(!tmp.keySet().isEmpty())
+            {
+                generateFurtherDocuments(tmp.keySet());
+                results = tmp;
+            }
         }
 
         return results.keySet();
+    }
+
+    /**
+     * Adds new found uris to the index.
+     * @param uris - set containing the uris
+     */
+    private void generateFurtherDocuments(Set<String> uris) throws IOException
+    {
+        Set<Resource> related = getRelated(uris);
+
+        generateDocuments(related);
     }
 
     private Set<Resource> getRelated(Set<String> uris){

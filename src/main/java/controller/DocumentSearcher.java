@@ -16,9 +16,9 @@ public class DocumentSearcher {
 
     public static void main(String[] args){
         if(OTFMode){
-            String indexDir = System.getProperty("user.dir")+"/../index";
-            String otfDir = System.getProperty("user.dir")+"/../otfindex";
-            String tdbDir = System.getProperty("user.dir")+"/../tdb";
+            String indexDir = "J:/index";
+            String otfDir = "J:/otfindex";
+            String tdbDir = "J:/tdb";
             try {
                 OTFSearcher searcher = new OTFSearcher(indexDir, otfDir, tdbDir, new TakeOnlySPO());
                 String input = "";

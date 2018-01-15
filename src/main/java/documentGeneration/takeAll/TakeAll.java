@@ -31,7 +31,7 @@ public class TakeAll extends AbstractDocumentGenerator {
     @Override
     public void init(String indexPath) throws IOException {
         indexer = new TripleIndexer(indexPath, true);
-        debugPath = indexPath.substring(0, indexPath.lastIndexOf(File.separator))+"/debug";
+        debugPath = "J:/debug";
         converter = new TripleConverter();
     }
 
