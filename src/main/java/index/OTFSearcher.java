@@ -190,7 +190,8 @@ public class OTFSearcher {
                 tmp.putAll(t.searchWith2Keywords(results.get(result), keywords[i]));
             }
 
-            results = tmp;
+            if(!tmp.keySet().isEmpty())
+                results = tmp;
         }
 
         return results.keySet();
