@@ -40,7 +40,7 @@ public class DocumentSearcher {
             TripleSearcher searcher;
             String indexDir = System.getProperty("user.dir")+"/../index";
             try{
-                searcher = new TripleSearcher(indexDir);
+                searcher = new TripleSearcher(indexDir,null);
                 String input = "";
                 for(String s : args){
                     input += s +" ";

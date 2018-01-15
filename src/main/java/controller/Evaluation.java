@@ -63,4 +63,6 @@ public class Evaluation {
 		}
 		System.out.println("fMeasure: " + fmeasure/questionCounter);
 	}
+
+
 }

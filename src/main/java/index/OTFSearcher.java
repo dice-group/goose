@@ -25,6 +25,7 @@ import org.apache.lucene.index.Term;
 
 import org.apache.lucene.search.*;
 
+import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.openrdf.query.algebra.Str;
 
@@ -127,6 +128,8 @@ public class OTFSearcher {
         qef = new QueryExecutionFactoryPaginated(qef, 1000);
 
         System.out.println(related.size());
+        if(related.size()> 1500) return new TreeSet<>();
+
 
         generator.init(pathToOTFIndex);
         if(DEBUG)
@@ -146,16 +149,22 @@ public class OTFSearcher {
             relations = qef.createQueryExecution(generator.getSPARQLQuery(uri.getURI())).execSelect();
             if(DEBUG)
                 System.out.println(uri.getURI() + " : " + label);
+            try{
+                generator.generate(uri, relations, label);
+            } catch (Exception e){
 
-            generator.generate(uri, relations, label);
+            }
+
 
         }
+        Directory otframdir = generator.getIndexer().getIndexDict();
+
         generator.finish();
         if(DEBUG){
             System.out.println("-----DEBUG-----");
         }
         //5. return answers from TripleSearcher
-        TripleSearcher tripleSearcher = new TripleSearcher(pathToOTFIndex);
+        TripleSearcher tripleSearcher = new TripleSearcher(pathToOTFIndex, otframdir);
 
         return tripleSearcher.searchInIndex(keywords);
     }
@@ -184,9 +193,10 @@ public class OTFSearcher {
      * @throws IOException
      */
     public void close() throws IOException {
+        if(db!= null)
         db.close();
+        if(reader != null)
         reader.close();
-        generator.finish();
     }
 
 }

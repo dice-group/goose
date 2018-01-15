@@ -1,5 +1,6 @@
 package documentGeneration;
 
+import index.TripleIndexer;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
@@ -14,7 +15,7 @@ import java.io.IOException;
 //https://github.com/SmartDataAnalytics/SemWeb2NL
 //https://github.com/dice-group/AGDISTIS/tree/master/src/main/java/org/aksw/agdistis/util
 public abstract class AbstractDocumentGenerator {
-
+	protected TripleIndexer indexer;
 	//query prefix for all extending classes
 	protected static final String PREFIX = "PREFIX dbo:<http://dbpedia.org/ontology/>\n" +
 			"PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n" +
@@ -72,5 +73,9 @@ public abstract class AbstractDocumentGenerator {
 			node = NodeFactory.createURI(pred.toString());
 		}
 		return node;
+	}
+
+	public TripleIndexer getIndexer(){
+		return indexer;
 	}
 }

@@ -25,13 +25,12 @@ import java.util.ArrayList;
  */
 public class TakeAll extends AbstractDocumentGenerator {
 
-    private TripleIndexer indexer;
     private TripleConverter converter;
     private String debugPath;
 
     @Override
     public void init(String indexPath) throws IOException {
-        indexer = new TripleIndexer(indexPath);
+        indexer = new TripleIndexer(indexPath, true);
         debugPath = indexPath.substring(0, indexPath.lastIndexOf(File.separator))+"/debug";
         converter = new TripleConverter();
     }
@@ -39,7 +38,7 @@ public class TakeAll extends AbstractDocumentGenerator {
     @Override
     public void init(String indexPath, int indexNumber) throws IOException
     {
-        indexer = new TripleIndexer(indexPath+"/" + indexNumber);
+        indexer = new TripleIndexer(indexPath+"/" + indexNumber, false);
         debugPath = indexPath + "/debug/" + indexNumber;
         converter = new TripleConverter();
     }

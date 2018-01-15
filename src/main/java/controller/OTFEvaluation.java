@@ -8,16 +8,19 @@ import org.aksw.qa.commons.load.LoaderController;
 import org.aksw.qa.commons.datastructure.IQuestion;
 import org.aksw.qa.commons.measure.AnswerBasedEvaluation;
 import index.Searcher;
+import org.apache.commons.io.FileUtils;
 import org.apache.jena.base.Sys;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.List;
 import java.util.Set;
 
 public class OTFEvaluation {
 
+    private static BufferedWriter writer;
 
-    public static void main(String[] args) {
+
+    public static void main(String[] args) throws IOException {
 
 
         // Laden von QALD 7 train multilingual mittels NLIWOD/qa.commons
@@ -27,6 +30,9 @@ public class OTFEvaluation {
         String indexDir = System.getProperty("user.dir")+"/../index";
         String otfDir = System.getProperty("user.dir")+"/../otfindex";
         String tdbDir = System.getProperty("user.dir")+"/../tdb";
+
+        FileOutputStream out = new FileOutputStream(new File(System.getProperty("user.dir")+"/../eva.txt"));
+        writer = new BufferedWriter(new OutputStreamWriter(out));
 
 
         //douzble fmeasure= 0
@@ -52,9 +58,9 @@ public class OTFEvaluation {
                     }
                     List<String> keywords = q.getLanguageToKeywords().get("en");
                     System.out.println("Question: "+keywords);
-
                     Set<String> answers = searcher.search((String [])keywords.toArray());
                     System.out.println("Answer: "+answers);
+                    out(keywords, q.getGoldenAnswers(), answers);
                     fmeasure += AnswerBasedEvaluation.fMeasure(answers, q);
                     questionCounter++;
                     try {
@@ -67,11 +73,28 @@ public class OTFEvaluation {
                 }
             }
         }
+        writer.close();
 
         //EVALUIEREMN
         // https://github.com/dice-group/NLIWOD/blob/master/qa.commons/src/test/java/org/aksw/qa/commons/measure/AnswerBasedEvaluationTest.java
 //System.out.println(fmeasure/N);
 
         System.out.println("fMeasure: " + fmeasure/questionCounter);
+    }
+
+    public static void out(List<String> keywords, Set<String> expected, Set<String> got) throws IOException {
+        writer.write("--------------------\n");
+        writer.write("Keywords:\n");
+        for(String s : keywords){
+            writer.write("\t"+s+"\n");
+        }
+        writer.write("Expected:\n");
+        for(String s : expected){
+            writer.write("\t"+s+"\n");
+        }
+        writer.write("Answers:\n");
+        for(String s : got){
+            writer.write("\t"+s+"\n");
+        }
     }
 }

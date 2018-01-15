@@ -16,21 +16,31 @@ import org.apache.lucene.document.Document;
         import org.apache.lucene.index.IndexWriterConfig;
         import org.apache.lucene.index.IndexableField;
 
-        import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
 
 public class TripleIndexer {
 
     private IndexWriter writer;
+    private Directory indexDict;
 
     /**
      * Sets up the IndexWriter with a Standard Config
      * @throws IOException
      */
-    public TripleIndexer(String pathToIndex) throws IOException{
+    public TripleIndexer(String pathToIndex, boolean otfmode) throws IOException{
         // directory for the indexer
-        FSDirectory indexDict = FSDirectory.open(Paths.get(pathToIndex));
+        Directory indexDict;
+        if(otfmode){
+            indexDict = new RAMDirectory();
+        }else{
+           indexDict = FSDirectory.open(Paths.get(pathToIndex));
+        }
+        this.indexDict = indexDict;
+
         //create indexer with standard conifg
         IndexWriterConfig conf = new IndexWriterConfig(new SimpleAnalyzer());
         writer = new IndexWriter(indexDict, conf);
@@ -60,8 +70,10 @@ public class TripleIndexer {
      * @throws IOException
      */
     public void closeIndex() throws IOException {
-
         writer.close();
+    }
 
+    public Directory getIndexDict() {
+        return indexDict;
     }
 }

@@ -54,4 +54,5 @@ public class GeneratedDocument {
         label =  label.replaceAll(" ", "_");
         return "http://dbpedia.org/resource/" + label;
     }
+
 }
