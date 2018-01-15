@@ -27,6 +27,7 @@ import org.apache.lucene.search.*;
 
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.jetbrains.annotations.NotNull;
 import org.openrdf.query.algebra.Str;
 
 
@@ -34,9 +35,7 @@ import javax.swing.plaf.FileChooserUI;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public class OTFSearcher {
 
@@ -128,7 +127,7 @@ public class OTFSearcher {
         qef = new QueryExecutionFactoryPaginated(qef, 1000);
 
         System.out.println(related.size());
-        if(related.size()> 1500) return new TreeSet<>();
+        //if(related.size()> 1500) return new TreeSet<>();
 
 
         generator.init(pathToOTFIndex);
@@ -166,7 +165,35 @@ public class OTFSearcher {
         //5. return answers from TripleSearcher
         TripleSearcher tripleSearcher = new TripleSearcher(pathToOTFIndex, otframdir);
 
-        return tripleSearcher.searchInIndex(keywords);
+        return executeSearch(tripleSearcher, keywords);
+    }
+
+    /**
+     * This method calls the searcher with two keywords recursively until it used all keywords.
+     * @param t - the searcher to perform the search operation
+     * @param keywords - the keywords to be searched for
+     * @return - a set of results
+     */
+    private Set<String> executeSearch(TripleSearcher t, String[] keywords)
+    {
+        if(keywords.length < 2)
+            return new TreeSet<>();
+
+        Map<String, String> results = t.searchWith2Keywords(keywords[0], keywords[1]);
+
+        for(int i=2; i<keywords.length; i++)
+        {
+            Map<String, String> tmp = new HashMap<>();
+
+            for (String result : results.keySet())
+            {
+                tmp.putAll(t.searchWith2Keywords(results.get(result), keywords[i]));
+            }
+
+            results = tmp;
+        }
+
+        return results.keySet();
     }
 
     private Set<Resource> getRelated(Set<String> uris){
