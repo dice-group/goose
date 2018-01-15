@@ -5,7 +5,7 @@ import edu.stanford.nlp.ling.tokensregex.PhraseTable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.jena.base.Sys;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
-import org.apache.lucene.analysis.util.CharacterUtils;
+
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -238,61 +238,85 @@ public class TripleSearcher {
 
         keyword1 = keyword1.trim();
         keyword2 = keyword2.trim();
+
+        String entityFromKeywords = Character.isUpperCase(keyword1.charAt(0)) ?  keyword1 : keyword2;
+        String nonEntityFromKeywords = Character.isUpperCase(keyword1.charAt(0)) ?  keyword2 : keyword1;
+
         try{
-            String[] synonyms1 = getSynomyms(keyword1);
-            String[] synonyms2 = getSynomyms(keyword2);
+            String[] synonyms = getSynomyms(nonEntityFromKeywords);
 
             //build query
             BooleanQuery.Builder bqBuilder= new BooleanQuery.Builder();
-            MultiPhraseQuery.Builder mqBuilder1 = new MultiPhraseQuery.Builder();
-            MultiPhraseQuery.Builder mqBuilder2 = new MultiPhraseQuery.Builder();
+            PhraseQuery.Builder pqBuilder1 = new PhraseQuery.Builder();
+            BooleanQuery.Builder bqSubBuilder = new BooleanQuery.Builder();
 
             //add synonyms to the query
-            for(String syn : synonyms1){
-                mqBuilder1.add(new Term("document", syn.toLowerCase()));
-            }
-            for(String syn : synonyms2){
-                mqBuilder1.add(new Term("document", syn.toLowerCase()));
+            for(String entityChunk : entityFromKeywords.split(" ")){
+                Term t = new Term("document", entityChunk.toLowerCase());
+                pqBuilder1.add(t);
             }
 
-            bqBuilder.add(mqBuilder1.build(), BooleanClause.Occur.MUST);
-            bqBuilder.add(mqBuilder2.build(), BooleanClause.Occur.MUST);
+            Term[] synonymTerms = new Term[synonyms.length];
+            for(int i = 0; i < synonymTerms.length; i++){
+                PhraseQuery.Builder pqbuilder2 = new PhraseQuery.Builder();
+                for (String nonEntityChunk : synonyms[i].split(" ")){
+                    pqbuilder2.add(new Term("document", nonEntityChunk.trim().toLowerCase()));
+                }
+                bqSubBuilder.add(pqbuilder2.build(), BooleanClause.Occur.SHOULD);
+            }
+
+            bqBuilder.add(pqBuilder1.build(), BooleanClause.Occur.MUST);
+            bqBuilder.add(bqSubBuilder.build(), BooleanClause.Occur.MUST);
 
             BooleanQuery query = bqBuilder.build();
+
+            System.out.println(query.toString());
 
             // query index
 
             TopDocs matchingDocs = searcher.search(query, RESULTCOUNT);
+            System.out.println(matchingDocs.totalHits);
 
             // post process answers
-
-            String entityFromKeywords = Character.isUpperCase(keyword1.charAt(0)) ?  keyword1 : keyword2;
-            String nonEntityFromKeywords = Character.isUpperCase(keyword1.charAt(0)) ?  keyword2 : keyword1;
 
             for (ScoreDoc doc : matchingDocs.scoreDocs){
                 String entityFromDocument = reader.document(doc.doc).get("entity");
                 String uriFromDocument = reader.document(doc.doc).get("uri");
                 String documentFromDocument = reader.document(doc.doc).get("document");
 
+                //replace last and by ,
+                int indexOfLastAnd = documentFromDocument.lastIndexOf(" and ");
+                documentFromDocument = documentFromDocument.substring(0,indexOfLastAnd)+", "+
+                        documentFromDocument.substring(indexOfLastAnd+5, documentFromDocument.length());
+
+
                 //if entity name is corresponding to the found document try to extract teh righthandside of
                 // a relation
                 if(entityFromDocument.contains(entityFromKeywords) ||(entityFromKeywords.contains(entityFromDocument))){
                     // split document into chunks and search if the non entity keyword occurs in a chunk
-                    String [] chunks = documentFromDocument.split(",|.");
+                    String [] chunks = documentFromDocument.split(",|\\.");
                     for(String chunk : chunks){
                         if(chunk.contains(nonEntityFromKeywords)){
+                            int firstUpperCaseLetter = -1;
+                            char [] chars = chunk.toCharArray();
+                            for(int i = 1; i < chars.length; i++){
+                                if(StringUtils.isAllUpperCase(""+chars[i])){
+                                    firstUpperCaseLetter = i;
+                                    break;
+                                }
+                            }
+                            //add URI to answers
+                            if(firstUpperCaseLetter != -1) {
+                                String extractedEntity =  chunk.substring(firstUpperCaseLetter);
+                                results.put(GeneratedDocument.generateURIOutOfTriple2NLLabel(extractedEntity),extractedEntity);
+                            }
 
-                            int start = StringUtils.ordinalIndexOf(chunk,"\"",1);
-                            int end = StringUtils.ordinalIndexOf(chunk,"\"",2);
-                            if(start == -1 || end == -1) continue;
-                            String extractedEntity = chunk.substring(start+1, end);
-                            results.put(GeneratedDocument.generateURIOutOfTriple2NLLabel(extractedEntity), extractedEntity);
                         }
                     }
                 }
                 //entity is not in the document title return
                 else{
-                    String [] chunks = documentFromDocument.split(",|.");
+                    String [] chunks = documentFromDocument.split(",|\\.");
                     for(String chunk : chunks){
                         if(chunk.contains(nonEntityFromKeywords) && chunk.contains(entityFromKeywords))
                             results.put(uriFromDocument, entityFromDocument);
