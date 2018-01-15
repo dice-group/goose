@@ -242,7 +242,7 @@ public class TripleSearcher {
             return res;
         }
         tmp.add(word);
-        String [] synonyms = (String [])tmp.toArray();
+        String [] synonyms = tmp.toArray(new String[tmp.size()]);
         return synonyms;
     }
 
@@ -309,7 +309,9 @@ public class TripleSearcher {
                     // split document into chunks and search if the non entity keyword occurs in a chunk
                     String [] chunks = documentFromDocument.split(",|\\.");
                     for(String chunk : chunks){
-                        if(chunk.contains(nonEntityFromKeywords)){
+
+
+                        if(chunkContainsNonEntityFromKeywords(chunk, synonyms)){
                             int firstUpperCaseLetter = -1;
                             char [] chars = chunk.toCharArray();
                             for(int i = 1; i < chars.length; i++){
@@ -331,7 +333,7 @@ public class TripleSearcher {
                 else{
                     String [] chunks = documentFromDocument.split(",|\\.");
                     for(String chunk : chunks){
-                        if(chunk.contains(nonEntityFromKeywords) && chunk.contains(entityFromKeywords))
+                        if(chunkContainsNonEntityFromKeywords(chunk, synonyms) && chunk.contains(entityFromKeywords))
                             results.put(uriFromDocument, entityFromDocument);
                     }
                 }
@@ -340,8 +342,16 @@ public class TripleSearcher {
             //if searcher throws io exception return an empty set
             return new HashMap<>();
         }
+        System.out.println(results);
 
         return results;
+    }
+
+    private boolean chunkContainsNonEntityFromKeywords(String chunk, String[] synonyms) {
+        for(String syn : synonyms) {
+            if(chunk.contains(syn)) return true;
+        }
+        return false;
     }
 
     private void createSynonymTable() {

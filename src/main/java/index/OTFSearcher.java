@@ -210,7 +210,8 @@ public class OTFSearcher {
 
             if(!tmp.keySet().isEmpty())
             {
-                t = new TripleSearcher(pathToOTFIndex, generateFurtherDocuments(tmp.keySet(), results.keySet()));
+                if(i < keywords.length-1)
+                    t = new TripleSearcher(pathToOTFIndex, generateFurtherDocuments(tmp.keySet(), results.keySet()));
                 results = tmp;
             }
         }
@@ -230,7 +231,8 @@ public class OTFSearcher {
 
             if(!tmp.keySet().isEmpty())
             {
-                t=new TripleSearcher(pathToOTFIndex, generateFurtherDocuments(tmp.keySet(), results.keySet()));
+                if(i > 2)
+                    t=new TripleSearcher(pathToOTFIndex, generateFurtherDocuments(tmp.keySet(), results.keySet()));
                 results = tmp;
             }
         }
