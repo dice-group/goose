@@ -122,23 +122,22 @@ public class OTFSearcher {
             }
         }
         //3. generate all documents for entities in toBeGenerated and store them in the OTFIndex
-        Directory otframdir = generateDocuments(related);
+        Directory otframdir = generateDocuments(related, new TreeSet<String>());
         if(DEBUG){
             System.out.println("-----DEBUG-----");
         }
         //5. return answers from TripleSearcher
-        TripleSearcher tripleSearcher = new TripleSearcher(pathToOTFIndex, otframdir);
-
-        return executeSearch(tripleSearcher, keywords);
+        return executeSearch(otframdir, keywords);
     }
 
     /**
      * This method generates all documents and adds them to the index
      * @param related - the uris to create documents for
+     * @param old - already contained uris
      * @return path to otf RAM dir
      * @throws IOException
      */
-    public Directory generateDocuments(Set<Resource> related) throws IOException
+    public Directory generateDocuments(Set<Resource> related, Set<String> old) throws IOException
     {
         QueryExecutionFactory qef = new QueryExecutionFactoryModel(db.getDefaultGraph());
         qef = new QueryExecutionFactoryDelay(qef, 0);
@@ -152,6 +151,8 @@ public class OTFSearcher {
         if(DEBUG)
             System.out.println("-----GENERATE-----");
         for(Resource uri : related){
+            if(old.contains(uri.toString()))
+                continue;
             String label;
             ResultSet relations;
 
@@ -169,7 +170,7 @@ public class OTFSearcher {
             try{
                 generator.generate(uri, relations, label);
             } catch (Exception e){
-
+                System.err.println(label);
             }
         }
         Directory otframdir = generator.getIndexer().getIndexDict();
@@ -181,17 +182,22 @@ public class OTFSearcher {
 
     /**
      * This method calls the searcher with two keywords recursively until it used all keywords.
-     * @param t - the searcher to perform the search operation
+     * @param otframdir - path to otf index in memory
      * @param keywords - the keywords to be searched for
      * @return - a set of results
      */
-    private Set<String> executeSearch(TripleSearcher t, String[] keywords) throws IOException
+    private Set<String> executeSearch(Directory otframdir, String[] keywords) throws IOException
     {
         if(keywords.length < 2)
             return new TreeSet<>();
 
-        Map<String, String> results = t.searchWith2Keywords(keywords[0], keywords[1]);
+        TripleSearcher t = new TripleSearcher(pathToOTFIndex, otframdir);
 
+        //generate first results
+        Map<String, String> results = t.searchWith2Keywords(keywords[0], keywords[1]);
+        t = new TripleSearcher(pathToOTFIndex, generateFurtherDocuments(results.keySet(), new TreeSet<String>()));
+
+        //generate results for already got result and one new keyword
         for(int i=2; i<keywords.length; i++)
         {
             Map<String, String> tmp = new HashMap<>();
@@ -203,7 +209,7 @@ public class OTFSearcher {
 
             if(!tmp.keySet().isEmpty())
             {
-                generateFurtherDocuments(tmp.keySet());
+                t = new TripleSearcher(pathToOTFIndex, generateFurtherDocuments(tmp.keySet(), results.keySet()));
                 results = tmp;
             }
         }
@@ -223,7 +229,7 @@ public class OTFSearcher {
 
             if(!tmp.keySet().isEmpty())
             {
-                generateFurtherDocuments(tmp.keySet());
+                t=new TripleSearcher(pathToOTFIndex, generateFurtherDocuments(tmp.keySet(), results.keySet()));
                 results = tmp;
             }
         }
@@ -234,12 +240,13 @@ public class OTFSearcher {
     /**
      * Adds new found uris to the index.
      * @param uris - set containing the uris
+     * @return directory of index
      */
-    private void generateFurtherDocuments(Set<String> uris) throws IOException
+    private Directory generateFurtherDocuments(Set<String> uris, Set<String> old) throws IOException
     {
         Set<Resource> related = getRelated(uris);
 
-        generateDocuments(related);
+       return generateDocuments(related, old);
     }
 
     private Set<Resource> getRelated(Set<String> uris){
