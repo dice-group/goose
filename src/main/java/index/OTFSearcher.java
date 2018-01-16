@@ -219,6 +219,8 @@ public class OTFSearcher {
         if(!results.keySet().isEmpty())
             return results.keySet();
 
+        results = t.searchWith2Keywords(keywords[0], keywords[1]);
+
         //reverse if nothing found
         for(int i=keywords.length-1; i>= 2; i--)
         {
