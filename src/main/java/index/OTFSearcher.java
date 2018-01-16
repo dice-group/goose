@@ -193,32 +193,33 @@ public class OTFSearcher {
             return new TreeSet<>();
 
         TripleSearcher t = new TripleSearcher(pathToOTFIndex, otframdir);
+        Map<String, String> results = null;
 
-        //generate first results
-        Map<String, String> results = t.searchWith2Keywords(keywords[0], keywords[1]);
-        t = new TripleSearcher(pathToOTFIndex, generateFurtherDocuments(results.keySet(), new TreeSet<String>()));
-
-        //generate results for already got result and one new keyword
-        for(int i=2; i<keywords.length; i++)
+        //generate first results only if first two keywords contain entity
+        if(keywords[0].charAt(0) >= 'A' && keywords[0].charAt(0) <= 'Z'
+                || keywords[1].charAt(0) >= 'A' && keywords[1].charAt(0) <= 'Z')
         {
-            Map<String, String> tmp = new HashMap<>();
+            results = t.searchWith2Keywords(keywords[0], keywords[1]);
+            t = new TripleSearcher(pathToOTFIndex, generateFurtherDocuments(results.keySet(), new TreeSet<String>()));
 
-            for (String result : results.keySet())
-            {
-                tmp.putAll(t.searchWith2Keywords(results.get(result), keywords[i]));
+            //generate results for already got result and one new keyword
+            for (int i = 2; i < keywords.length; i++) {
+                Map<String, String> tmp = new HashMap<>();
+
+                for (String result : results.keySet()) {
+                    tmp.putAll(t.searchWith2Keywords(results.get(result), keywords[i]));
+                }
+
+                if (!tmp.keySet().isEmpty()) {
+                    if (i < keywords.length - 1)
+                        t = new TripleSearcher(pathToOTFIndex, generateFurtherDocuments(tmp.keySet(), results.keySet()));
+                    results = tmp;
+                }
             }
 
-            if(!tmp.keySet().isEmpty())
-            {
-                if(i < keywords.length-1)
-                    t = new TripleSearcher(pathToOTFIndex, generateFurtherDocuments(tmp.keySet(), results.keySet()));
-                results = tmp;
-            }
+            if (!results.keySet().isEmpty())
+                return results.keySet();
         }
-
-        if(!results.keySet().isEmpty())
-            return results.keySet();
-
         results = t.searchWith2Keywords(keywords[keywords.length-1], keywords[keywords.length-2]);
 
         //reverse if nothing found

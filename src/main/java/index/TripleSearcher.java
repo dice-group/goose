@@ -241,7 +241,8 @@ public class TripleSearcher {
             res[0] = word;
             return res;
         }
-        tmp.add(word);
+        if(!tmp.contains(word))
+            tmp.add(word);
         String [] synonyms = tmp.toArray(new String[tmp.size()]);
         return synonyms;
     }
