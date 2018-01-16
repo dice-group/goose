@@ -219,10 +219,10 @@ public class OTFSearcher {
         if(!results.keySet().isEmpty())
             return results.keySet();
 
-        results = t.searchWith2Keywords(keywords[0], keywords[1]);
+        results = t.searchWith2Keywords(keywords[keywords.length-1], keywords[keywords.length-2]);
 
         //reverse if nothing found
-        for(int i=keywords.length-1; i>= 2; i--)
+        for(int i=keywords.length-3; i>= 0; i--)
         {
             Map<String, String> tmp = new HashMap<>();
 
@@ -233,7 +233,7 @@ public class OTFSearcher {
 
             if(!tmp.keySet().isEmpty())
             {
-                if(i > 2)
+                if(i > 0)
                     t=new TripleSearcher(pathToOTFIndex, generateFurtherDocuments(tmp.keySet(), results.keySet()));
                 results = tmp;
             }
