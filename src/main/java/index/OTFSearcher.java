@@ -156,10 +156,15 @@ public class OTFSearcher {
                 continue;
             String label;
             ResultSet relations;
-
             //get label of the uri
             String labelQuery = prefix + " select distinct ?l where{<"+ uri +"> rdfs:label ?l}";
-            QueryExecution exec = qef.createQueryExecution(labelQuery);
+            QueryExecution exec;
+            try {
+                exec = qef.createQueryExecution(labelQuery);
+            }catch(Exception e)
+            {
+                continue;
+            }
             ResultSet labels = exec.execSelect();
             if(!labels.hasNext()){
                 continue;
