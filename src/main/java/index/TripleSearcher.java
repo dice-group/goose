@@ -2,6 +2,7 @@ package index;
 
 import documentGeneration.GeneratedDocument;
 import edu.stanford.nlp.ling.tokensregex.PhraseTable;
+import org.aksw.triple2nl.nlp.stemming.PlingStemmer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.jena.base.Sys;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
@@ -35,6 +36,7 @@ public class TripleSearcher {
      * @throws IOException
      */
     public TripleSearcher(String pathToIndex, Directory indexDict) throws IOException {
+
         synonymTable = new HashMap<>();
         createSynonymTable();
 
@@ -257,6 +259,7 @@ public class TripleSearcher {
         String nonEntityFromKeywords = Character.isUpperCase(keyword1.charAt(0)) ?  keyword2 : keyword1;
 
         try{
+            nonEntityFromKeywords = PlingStemmer.stem(nonEntityFromKeywords);
             String[] synonyms = getSynomyms(nonEntityFromKeywords);
 
             //build query
@@ -538,6 +541,10 @@ public class TripleSearcher {
         tmp = new ArrayList<>();
         tmp.add("presenter");
         synonymTable.put("host", tmp);
+
+        tmp = new ArrayList<>();
+        tmp.add("birth place");
+        synonymTable.put("birthplace", tmp);
     }
 }
 
