@@ -205,7 +205,8 @@ public class OTFSearcher {
                 || keywords[1].charAt(0) >= 'A' && keywords[1].charAt(0) <= 'Z')
         {
             results = t.searchWith2Keywords(keywords[0], keywords[1]);
-            t = new TripleSearcher(pathToOTFIndex, generateFurtherDocuments(results.keySet(), new TreeSet<String>()));
+            if(2 <= keywords.length-1)
+                t = new TripleSearcher(pathToOTFIndex, generateFurtherDocuments(results.keySet(), new TreeSet<String>()));
 
             //generate results for already got result and one new keyword
             for (int i = 2; i < keywords.length; i++) {
@@ -225,7 +226,10 @@ public class OTFSearcher {
             if (!results.keySet().isEmpty())
                 return results.keySet();
         }
+
         results = t.searchWith2Keywords(keywords[keywords.length-1], keywords[keywords.length-2]);
+        if(0 <= keywords.length-3)
+            t = new TripleSearcher(pathToOTFIndex, generateFurtherDocuments(results.keySet(), new TreeSet<String>()));
 
         //reverse if nothing found
         for(int i=keywords.length-3; i>= 0; i--)

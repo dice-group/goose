@@ -27,9 +27,9 @@ public class OTFEvaluation {
         // https://github.com/dice-group/NLIWOD/tree/master/qa.commons
         // https://github.com/dice-group/NLIWOD/blob/master/qa.commons/src/test/java/org/aksw/qa/commons/load/LoadTest.java
         List<IQuestion> questions = LoaderController.load(Dataset.QALD7_Train_Multilingual);
-        String indexDir = System.getProperty("user.dir")+"/../index";
-        String otfDir = System.getProperty("user.dir")+"/../otfindex";
-        String tdbDir = System.getProperty("user.dir")+"/../tdb";
+        String indexDir = "J:/index";
+        String otfDir = "J:/otfindex";
+        String tdbDir = "J:/tdb";
 
         FileOutputStream out = new FileOutputStream(new File(System.getProperty("user.dir")+"/../eva.txt"));
         writer = new BufferedWriter(new OutputStreamWriter(out));
@@ -58,7 +58,7 @@ public class OTFEvaluation {
                     }
                     List<String> keywords = q.getLanguageToKeywords().get("en");
                     System.out.println("Question: "+keywords);
-                    Set<String> answers = searcher.search((String [])keywords.toArray());
+                    Set<String> answers = searcher.search(keywords.toArray(new String[keywords.size()]));
                     System.out.println("Answer: "+answers);
                     out(keywords, q.getGoldenAnswers(), answers);
                     fmeasure += AnswerBasedEvaluation.fMeasure(answers, q);
