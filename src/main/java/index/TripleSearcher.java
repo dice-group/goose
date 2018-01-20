@@ -303,7 +303,8 @@ public class TripleSearcher {
 
                 //replace last and by ,
                 int indexOfLastAnd = documentFromDocument.lastIndexOf(" and ");
-                documentFromDocument = documentFromDocument.substring(0,indexOfLastAnd)+", "+
+                if(indexOfLastAnd>=0)
+                    documentFromDocument = documentFromDocument.substring(0,indexOfLastAnd)+", "+
                         documentFromDocument.substring(indexOfLastAnd+5, documentFromDocument.length());
 
 
