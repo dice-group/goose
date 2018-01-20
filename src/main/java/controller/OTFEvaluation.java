@@ -1,6 +1,7 @@
 package controller;
 
 import documentGeneration.AbstractDocumentGenerator;
+import documentGeneration.takeConsideringPagerank.TakeConsideringPagerank;
 import documentGeneration.takeOnlySPO.TakeOnlySPO;
 import index.OTFSearcher;
 import org.aksw.qa.commons.load.Dataset;
@@ -27,9 +28,9 @@ public class OTFEvaluation {
         // https://github.com/dice-group/NLIWOD/tree/master/qa.commons
         // https://github.com/dice-group/NLIWOD/blob/master/qa.commons/src/test/java/org/aksw/qa/commons/load/LoadTest.java
         List<IQuestion> questions = LoaderController.load(Dataset.QALD7_Train_Multilingual);
-        String indexDir = "J:/index";
-        String otfDir = "J:/otfindex";
-        String tdbDir = "J:/tdb";
+        String indexDir = System.getProperty("user.dir")+"/../index";
+        String otfDir = System.getProperty("user.dir")+"/../otfindex";
+        String tdbDir = System.getProperty("user.dir") + "/../tdb";
 
         FileOutputStream out = new FileOutputStream(new File(System.getProperty("user.dir")+"/../eva.txt"));
         writer = new BufferedWriter(new OutputStreamWriter(out));
@@ -51,7 +52,7 @@ public class OTFEvaluation {
                 try {
                     OTFSearcher searcher;
                     try {
-                        searcher = new OTFSearcher(indexDir, otfDir, tdbDir,  new TakeOnlySPO());
+                        searcher = new OTFSearcher(indexDir, otfDir, tdbDir);
                     } catch (IOException e) {
                         System.err.println("Could not open index!");
                         return;
@@ -73,13 +74,15 @@ public class OTFEvaluation {
                 }
             }
         }
-        writer.close();
+
 
         //EVALUIEREMN
         // https://github.com/dice-group/NLIWOD/blob/master/qa.commons/src/test/java/org/aksw/qa/commons/measure/AnswerBasedEvaluationTest.java
 //System.out.println(fmeasure/N);
 
         System.out.println("fMeasure: " + fmeasure/questionCounter);
+        writer.write("fMeasure: " + fmeasure/questionCounter);
+        writer.close();
     }
 
     public static void out(List<String> keywords, Set<String> expected, Set<String> got) throws IOException {

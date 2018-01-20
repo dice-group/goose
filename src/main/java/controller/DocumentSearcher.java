@@ -20,7 +20,7 @@ public class DocumentSearcher {
             String otfDir = System.getProperty("user.dir")+"/../otfindex";
             String tdbDir = System.getProperty("user.dir")+"/../tdb";
             try {
-                OTFSearcher searcher = new OTFSearcher(indexDir, otfDir, tdbDir, new TakeOnlySPO());
+                OTFSearcher searcher = new OTFSearcher(indexDir, otfDir, tdbDir);
                 String input = "";
                 for(String s : args){
                     input += s +" ";

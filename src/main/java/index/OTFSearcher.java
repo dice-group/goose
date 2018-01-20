@@ -2,6 +2,7 @@ package index;
 
 import controller.DocumentGenerator;
 import documentGeneration.AbstractDocumentGenerator;
+import documentGeneration.takeConsideringPagerank.TakeConsideringPagerank;
 import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
 import org.aksw.jena_sparql_api.delay.core.QueryExecutionFactoryDelay;
 import org.aksw.jena_sparql_api.model.QueryExecutionFactoryModel;
@@ -51,7 +52,7 @@ public class OTFSearcher {
 
     private final static boolean DEBUG = DocumentGenerator.DEBUG;
 
-    private final AbstractDocumentGenerator generator;
+    private AbstractDocumentGenerator generator;
 
     /**
      * Sets up the OTFSearcher.
@@ -60,7 +61,7 @@ public class OTFSearcher {
      * @param pathToTDB Path to the tdb that holds all the data.
      * @throws IOException
      */
-    public OTFSearcher(String pathToIndex, String pathToOTFIndex, String pathToTDB, AbstractDocumentGenerator generator) throws IOException {
+    public OTFSearcher(String pathToIndex, String pathToOTFIndex, String pathToTDB) throws IOException {
         //open directory of the index
         FSDirectory indexDict = FSDirectory.open(Paths.get(pathToIndex));
         //create new indexsearcher for the index
@@ -71,7 +72,7 @@ public class OTFSearcher {
         //remove old otfindex
         this.pathToOTFIndex = pathToOTFIndex;
         FileUtils.deleteDirectory(new File(pathToOTFIndex));
-        this.generator = generator;
+        this.generator = new TakeConsideringPagerank(db.getDefaultGraph());
     }
 
     private Set<String> urisToEntityName(String [] entityNames) throws IOException {
