@@ -316,7 +316,7 @@ public class TripleSearcher {
                     for(String chunk : chunks){
 
 
-                        if(chunkContainsNonEntityFromKeywords(chunk, synonyms)){
+                        if(chunkContainsNonEntityFromKeywords(chunk, synonyms) && ! chunk.contains("\"")){
                             int firstUpperCaseLetter = -1;
                             char [] chars = chunk.toCharArray();
                             for(int i = 1; i < chars.length; i++){
