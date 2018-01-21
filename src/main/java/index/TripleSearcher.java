@@ -452,9 +452,9 @@ public class TripleSearcher {
         tmp.add("hovercraft");
         synonymTable.put("hovercrafts", tmp);
 
-        tmp = new ArrayList<>();
-        tmp.add("source country");
-        synonymTable.put("start", tmp);
+        //tmp = new ArrayList<>();
+        //tmp.add("source country");
+        //synonymTable.put("start", tmp);
 
         tmp = new ArrayList<>();
         tmp.add("director");
