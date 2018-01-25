@@ -8,8 +8,13 @@ import java.util.Set;
 
 public class DocumentSearcher {
 
+    //flag to activate otf mode
     private static final boolean OTFMode = true;
 
+    /**
+     * Main method to search. With otf mode or not.
+     * @param args
+     */
     public static void main(String[] args){
         if(OTFMode){
             String indexDir = System.getProperty("user.dir")+"/../index";
@@ -33,6 +38,8 @@ public class DocumentSearcher {
                 return;
             }
         } else {
+            // SEARCH ONLY POSSIBLE IN OTFMODE
+            /**
             TripleSearcher searcher;
             String indexDir = System.getProperty("user.dir")+"/../index";
             try{
@@ -52,17 +59,29 @@ public class DocumentSearcher {
                 System.err.println("Could not open index!");
                 return;
             }
+         **/
         }
 
 
     }
 
+    /**
+     * Prints array to standard out.
+     * @param array
+     * @param title
+     */
     public static void printArray(String [] array, String title){
         System.out.println(title);
         for(String word :array){
             System.out.println(word);
         }
     }
+
+    /**
+     * Prints set to standard out.
+     * @param set
+     * @param title
+     */
     public static void printSet(Set<String> set, String title){
         System.out.println(title);
         for(String word : set){

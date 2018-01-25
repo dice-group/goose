@@ -79,6 +79,13 @@ public class OTFEvaluation {
         writer.close();
     }
 
+    /**
+     * Print progress to file.
+     * @param keywords
+     * @param expected
+     * @param got
+     * @throws IOException
+     */
     public static void out(List<String> keywords, Set<String> expected, Set<String> got) throws IOException {
         writer.write("--------------------\n");
         writer.write("Keywords:\n");

@@ -1,6 +1,6 @@
 package search;
 
-import documentGeneration.DocumentGenerator;
+import knowledgeBase.DocumentGenerator;
 import documentGeneration.AbstractDocumentGenerator;
 import documentGeneration.takeConsideringPagerank.TakeConsideringPagerank;
 import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
@@ -69,6 +69,12 @@ public class OTFSearcher {
         this.generator = new TakeConsideringPagerank(db.getDefaultGraph());
     }
 
+    /**
+     * Queries the index (containing entitylabel and uri) and searches for the given entitynames.
+     * @param entityNames labels of entities
+     * @return Set of all found uris corresponding to the entities out of entityNames
+     * @throws IOException
+     */
     private Set<String> urisToEntityName(String [] entityNames) throws IOException {
         Set<String> answers = new TreeSet<>();
 
@@ -146,10 +152,8 @@ public class OTFSearcher {
         generator.init(pathToOTFIndex);
         if(DEBUG)
             System.out.println("-----GENERATE-----");
-        int cnt = 1;
+
         for(Resource uri : related){
-            System.out.println(cnt + "/" + related.size());
-            cnt++;
             if(old.contains(uri.toString()))
                 continue;
             String label;
@@ -262,6 +266,11 @@ public class OTFSearcher {
        return generateDocuments(related, old);
     }
 
+    /**
+     * Queries the database to get all related entities for uris out of uris
+     * @param uris Set of uris
+     * @return Set of Resources related to the uris out of uris
+     */
     private Set<Resource> getRelated(Set<String> uris){
         HashSet<Resource> related = new HashSet<>();
         QueryExecutionFactory entityEx = new QueryExecutionFactoryModel(db.getDefaultGraph());

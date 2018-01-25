@@ -103,7 +103,7 @@ public class TakeAll extends AbstractDocumentGenerator {
             //debug
             if (subject.getLocalName().equals("")) return;
 
-            if(documentGeneration.DocumentGenerator.DEBUG){
+            if(knowledgeBase.DocumentGenerator.DEBUG){
                 label = label.replaceAll("/","_");
                 File f = new File(debugPath + "/" + label);
                 if(f.getParentFile() != null)

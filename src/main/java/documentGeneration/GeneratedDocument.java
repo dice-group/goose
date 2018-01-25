@@ -13,12 +13,9 @@ public class GeneratedDocument {
      */
     public GeneratedDocument(String entity, String uri, String document) throws IllegalArgumentException{
         //test wether entity is an URI
-
             this.uri = uri;
             this.entity = entity;
             this.document = document;
-
-
     }
 
     /**

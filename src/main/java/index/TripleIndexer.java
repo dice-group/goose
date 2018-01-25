@@ -77,6 +77,10 @@ public class TripleIndexer {
         writer.close();
     }
 
+    /**
+     * Returns the directory of the index.
+     * @return
+     */
     public Directory getIndexDict() {
         return indexDict;
     }
