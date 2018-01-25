@@ -1,10 +1,10 @@
-package controller;
+package evaluation;
 
 import org.aksw.qa.commons.load.Dataset;
 import org.aksw.qa.commons.load.LoaderController;
 import org.aksw.qa.commons.datastructure.IQuestion;
 import org.aksw.qa.commons.measure.AnswerBasedEvaluation;
-import index.Searcher;
+import search.Searcher;
 
 import java.io.IOException;
 import java.util.List;

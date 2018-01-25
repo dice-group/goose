@@ -1,11 +1,13 @@
 package index;
 
 import java.io.*;
-        import java.nio.file.Paths;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import documentGeneration.GeneratedDocument;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
@@ -18,6 +20,7 @@ import org.apache.lucene.document.Document;
 
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.store.MMapDirectory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
@@ -35,7 +38,8 @@ public class TripleIndexer {
         // directory for the indexer
         Directory indexDict;
         if(otfmode){
-            indexDict = new RAMDirectory();
+            FileUtils.deleteDirectory(new File(pathToIndex));
+            indexDict = new MMapDirectory(Paths.get(pathToIndex));
         }else{
            indexDict = FSDirectory.open(Paths.get(pathToIndex));
         }

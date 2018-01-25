@@ -1,16 +1,10 @@
-package controller;
+package evaluation;
 
-import documentGeneration.AbstractDocumentGenerator;
-import documentGeneration.takeConsideringPagerank.TakeConsideringPagerank;
-import documentGeneration.takeOnlySPO.TakeOnlySPO;
-import index.OTFSearcher;
+import search.OTFSearcher;
 import org.aksw.qa.commons.load.Dataset;
 import org.aksw.qa.commons.load.LoaderController;
 import org.aksw.qa.commons.datastructure.IQuestion;
 import org.aksw.qa.commons.measure.AnswerBasedEvaluation;
-import index.Searcher;
-import org.apache.commons.io.FileUtils;
-import org.apache.jena.base.Sys;
 
 import java.io.*;
 import java.util.List;

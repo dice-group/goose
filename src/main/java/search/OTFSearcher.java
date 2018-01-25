@@ -1,6 +1,6 @@
-package index;
+package search;
 
-import controller.DocumentGenerator;
+import documentGeneration.DocumentGenerator;
 import documentGeneration.AbstractDocumentGenerator;
 import documentGeneration.takeConsideringPagerank.TakeConsideringPagerank;
 import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
@@ -8,15 +8,12 @@ import org.aksw.jena_sparql_api.delay.core.QueryExecutionFactoryDelay;
 import org.aksw.jena_sparql_api.model.QueryExecutionFactoryModel;
 import org.aksw.jena_sparql_api.pagination.core.QueryExecutionFactoryPaginated;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.jena.base.Sys;
 import org.apache.jena.query.QueryExecution;
 
 import org.apache.jena.query.QuerySolution;
 import org.apache.jena.query.ResultSet;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
-import org.apache.jena.rdf.model.ResourceRequiredException;
 import org.apache.jena.tdb.base.file.Location;
 import org.apache.jena.tdb.setup.DatasetBuilderStd;
 import org.apache.jena.tdb.store.DatasetGraphTDB;
@@ -29,11 +26,8 @@ import org.apache.lucene.search.*;
 
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.jetbrains.annotations.NotNull;
-import org.openrdf.query.algebra.Str;
 
 
-import javax.swing.plaf.FileChooserUI;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -152,7 +146,10 @@ public class OTFSearcher {
         generator.init(pathToOTFIndex);
         if(DEBUG)
             System.out.println("-----GENERATE-----");
+        int cnt = 1;
         for(Resource uri : related){
+            System.out.println(cnt + "/" + related.size());
+            cnt++;
             if(old.contains(uri.toString()))
                 continue;
             String label;

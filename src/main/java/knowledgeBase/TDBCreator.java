@@ -1,17 +1,9 @@
-package databaseCreator;
+package knowledgeBase;
 
-import org.aksw.jena_sparql_api.core.QueryExecutionFactory;
-import org.aksw.jena_sparql_api.model.QueryExecutionFactoryModel;
 import org.apache.jena.atlas.lib.Sink;
 import org.apache.jena.graph.Triple;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.query.QueryExecution;
-import org.apache.jena.query.QuerySolution;
-import org.apache.jena.query.ResultSet;
 import org.apache.jena.riot.RDFParser;
-import org.apache.jena.riot.out.SinkTripleOutput;
 import org.apache.jena.riot.system.StreamRDF;
-import org.apache.jena.tdb.TDBFactory;
 import org.apache.jena.tdb.base.file.Location;
 import org.apache.jena.tdb.setup.DatasetBuilderStd;
 import org.apache.jena.tdb.store.DatasetGraphTDB;

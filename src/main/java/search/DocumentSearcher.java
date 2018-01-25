@@ -1,11 +1,7 @@
-package controller;
+package search;
 
-import documentGeneration.takeOnlySPO.TakeOnlySPO;
-import index.OTFSearcher;
-import index.Searcher;
-import index.TripleSearcher;
-import org.apache.commons.lang.StringUtils;
-import org.apache.jena.base.Sys;
+import search.OTFSearcher;
+import search.TripleSearcher;
 
 import java.io.IOException;
 import java.util.Set;

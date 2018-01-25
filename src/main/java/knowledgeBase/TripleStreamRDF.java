@@ -1,4 +1,4 @@
-package databaseCreator;
+package knowledgeBase;
 
 import org.apache.jena.atlas.lib.Sink;
 import org.apache.jena.graph.Triple;

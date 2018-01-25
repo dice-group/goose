@@ -1,4 +1,4 @@
-package index;
+package search;
 
 import documentGeneration.GeneratedDocument;
 import edu.stanford.nlp.ling.tokensregex.PhraseTable;

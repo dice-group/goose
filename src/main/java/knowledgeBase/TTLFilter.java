@@ -1,4 +1,4 @@
-package databaseCreator;
+package knowledgeBase;
 
 import java.io.File;
 import java.io.FileFilter;

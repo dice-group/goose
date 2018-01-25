@@ -1,11 +1,10 @@
-package index;
+package search;
 
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Set;
 import java.util.TreeSet;
 
-import controller.DocumentGenerator;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
