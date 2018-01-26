@@ -12,8 +12,12 @@ import org.dllearner.kb.sparql.SparqlEndpoint;
 
 import java.io.IOException;
 
-//https://github.com/SmartDataAnalytics/SemWeb2NL
-//https://github.com/dice-group/AGDISTIS/tree/master/src/main/java/org/aksw/agdistis/util
+/**
+ * This class provides all necessary methods in order to create
+ * a new strategy for document generation. Every document generation
+ * strategy has to extend this abstract class or another strategy
+ * extending this abstract class.
+ */
 public abstract class AbstractDocumentGenerator {
 	protected TripleIndexer indexer;
 	//query prefix for all extending classes
@@ -50,7 +54,7 @@ public abstract class AbstractDocumentGenerator {
 	public abstract void finish() throws IOException;
 
 	/**
-	 * Generates a document to entity with the specified informations and saves it to the index.
+	 * Generates a document for entity with the specified information and saves it to the index.
 	 * @param entity Entity ?s
 	 * @param relations Triple relations ?p ?o
 	 * @throws IOException
@@ -75,6 +79,10 @@ public abstract class AbstractDocumentGenerator {
 		return node;
 	}
 
+	/**
+	 * Gives access to the indexer of this instance.
+	 * @return the indexer used to store generated documents
+	 */
 	public TripleIndexer getIndexer(){
 		return indexer;
 	}

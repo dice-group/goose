@@ -16,12 +16,19 @@ public class TDBSink implements Sink<Triple> {
         this.tdb = tdb;
     }
 
+    /**
+     * Stores a triple into the database
+     * @param triple - the triple to be stored
+     */
     @Override
     public void send(Triple triple) {
 
         tdb.getTripleTable().add(triple);
     }
 
+    /**
+     * Flushes the sink
+     */
     @Override
     public void flush() {
         tdb.sync();

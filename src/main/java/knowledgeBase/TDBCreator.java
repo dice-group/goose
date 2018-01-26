@@ -10,19 +10,22 @@ import org.apache.jena.tdb.store.DatasetGraphTDB;
 
 import java.io.File;
 
+/**
+ * This class creates a database from all triples provided as .ttl files
+ * in the given directory.
+ */
 public class TDBCreator {
 
     public static void main(String[] args)
     {
         String database = System.getProperty("user.dir")+"/../tdb";
-        //select your own path to dbpedia files
+        //select your own path to dbpedia files in triple store (ttl)
         File fileDirectory = new File(System.getProperty("user.dir")+"/../dbpedia");
         DatasetGraphTDB db = DatasetBuilderStd.create(Location.create(database));
 
         Sink<Triple> output = new TDBSink(db);
         StreamRDF streamer = new TripleStreamRDF(output);
 
-        //File f = new File(fileDirectory+"/labels_en.ttl");
         for(File f : fileDirectory.listFiles(new TTLFilter()))
         {
             System.out.println("Parsing " + f.getName());

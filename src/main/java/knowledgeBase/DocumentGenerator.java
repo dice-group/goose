@@ -31,7 +31,11 @@ import org.apache.jena.tdb.store.DatasetGraphTDB;
 import org.apache.log4j.PropertyConfigurator;
 import org.openrdf.query.algebra.Str;
 
-
+/**
+ * This class generates documents for all entites provided by the tdb database.
+ * Document generation can be configured by selecting another document generation
+ * strategy.
+ */
 public class DocumentGenerator {
 
 	public static final boolean DEBUG = false;
@@ -40,8 +44,10 @@ public class DocumentGenerator {
 									     "PREFIX rdfs:<http://www.w3.org/2000/01/rdf-schema#>\n";
 	public static void main(String[] args) throws IOException
 	{
+		//configure log4j
 		PropertyConfigurator.configure(System.getProperty("user.dir") + "/src/main/res/log4j.properties");
 
+		//check command line parameters
 		if (args.length < 2) {
 			System.err.println("Must be called like: " +
 					"java -jar GOOSE.jar <path to database> <directory to store index in>");
@@ -60,8 +66,6 @@ public class DocumentGenerator {
 			System.exit(-1);
 		}
 
-		//http://sparql-full-text.cs.upb.de:3030/ds/sparql
-		//QueryExecutionFactory qef = new QueryExecutionFactoryHttp("http://dbpedia.org/sparql");
 
 		//load tdb database
 		DatasetGraphTDB db = DatasetBuilderStd.create(Location.create(dbDir.getPath()));
@@ -69,6 +73,7 @@ public class DocumentGenerator {
 		if (DEBUG)
 			System.out.println("TDB successfully loaded!");
 
+		//create query factory for relationship queries
 		QueryExecutionFactory qef = new QueryExecutionFactoryModel(db.getDefaultGraph());
 		qef = new QueryExecutionFactoryDelay(qef, 0);
 		qef = new QueryExecutionFactoryPaginated(qef, 1000);
@@ -100,6 +105,7 @@ public class DocumentGenerator {
 				break;
 			}
 
+			//if not otf mode, initialize generation strategies
 			if(i==0)
 				generator = new TakeConsideringPagerank(db.getDefaultGraph());
 			else
@@ -114,7 +120,7 @@ public class DocumentGenerator {
 				if (DEBUG)
 					System.out.println(entity.getURI());
 
-				//throw query at dbpedia
+				//throw query at tdb holding dbpedia knowledgebase
 				QueryExecution query = qef.createQueryExecution(generator.getSPARQLQuery(entity.getURI()));
 				ResultSet relations = query.execSelect();
 
@@ -122,7 +128,8 @@ public class DocumentGenerator {
 				String label = qEntity.get("o").asLiteral().getLexicalForm();
 				if (DEBUG)
 					System.err.println("Label: " + label);
-				
+
+				//generate document for entity
 				try {
 					generator.generate(entity, relations, label);
 				}catch(Exception e)

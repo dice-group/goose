@@ -16,6 +16,12 @@ import org.apache.jena.rdf.model.Resource;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * This strategy only takes triples whose subject is the entity
+ * and only puts relations in the entity's document whose pagerank multiplied by
+ * the thresholdFactor is at least the pagerank of the entity or that are properties
+ * of the entity.
+ */
 public class TakeConsideringPagerank extends TakeAll {
 
     private QueryExecutionFactory qef;
