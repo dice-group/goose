@@ -25,6 +25,9 @@ import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
 
 
+/**
+ * This class is used to create an  Apache Lucene Index consisting of (uri, label, generated document).
+ */
 public class TripleIndexer {
 
     private IndexWriter writer;

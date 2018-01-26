@@ -1,5 +1,8 @@
 package documentGeneration;
 
+/**
+ * Dataholder for generated documents
+ */
 public class GeneratedDocument {
 
     private String entity;

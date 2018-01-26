@@ -33,6 +33,9 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ * Class that implements the special search for the OTF approach.
+ */
 public class OTFSearcher {
 
     private final int RESULTCOUNT = 1000;

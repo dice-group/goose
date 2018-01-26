@@ -6,6 +6,9 @@ import search.TripleSearcher;
 import java.io.IOException;
 import java.util.Set;
 
+/**
+ * This class lets you search for keywords by hand. Uses OTF approach.
+ */
 public class DocumentSearcher {
 
     //flag to activate otf mode

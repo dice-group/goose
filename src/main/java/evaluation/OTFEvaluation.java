@@ -14,6 +14,11 @@ public class OTFEvaluation {
 
     private static BufferedWriter writer;
 
+    /**
+     * This class starts the evaluation with QALD7. Uses OTF approach of document generation.
+     * @param args
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
 
 
