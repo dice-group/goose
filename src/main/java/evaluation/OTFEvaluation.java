@@ -59,7 +59,9 @@ public class OTFEvaluation {
                     out(keywords, q.getGoldenAnswers(), answers);
 
                     //score answers
-                    fmeasure += AnswerBasedEvaluation.fMeasure(answers, q);
+                    double afmeasure = AnswerBasedEvaluation.fMeasure(answers, q);
+                    writer.write("afmeasure: " + afmeasure + "\n");
+                    fmeasure += afmeasure;
                     questionCounter++;
                     try {
                         searcher.close();
