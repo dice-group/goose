@@ -33,7 +33,7 @@ public class OTFEvaluation {
 
 
         //benchmark
-        double fmeasure = 0;
+        double fmeasure = 0, precision=0, recall=0;
         int questionCounter = 0;
         for(IQuestion q : questions)
         {
@@ -60,7 +60,13 @@ public class OTFEvaluation {
 
                     //score answers
                     double afmeasure = AnswerBasedEvaluation.fMeasure(answers, q);
+                    double aprecision = AnswerBasedEvaluation.precision(answers, q);
+                    double arecall = AnswerBasedEvaluation.recall(answers, q);
                     writer.write("afmeasure: " + afmeasure + "\n");
+                    writer.write("aprecision: " + aprecision + "\n");
+                    writer.write("arecall: " + arecall + "\n");
+                    precision += aprecision;
+                    recall += arecall;
                     fmeasure += afmeasure;
                     questionCounter++;
                     try {
@@ -77,8 +83,19 @@ public class OTFEvaluation {
 
 
         //calculate mean fmeasure and print it
-        System.out.println("fMeasure: " + fmeasure/questionCounter);
-        writer.write("fMeasure: " + fmeasure/questionCounter);
+        if(fmeasure!=0)
+            fmeasure = fmeasure/questionCounter;
+        if(precision!=0)
+            precision = precision/questionCounter;
+        if(recall != 0)
+            recall = recall/questionCounter;
+
+        System.out.println("fMeasure: " + fmeasure);
+        writer.write("fMeasure: " + fmeasure);
+        System.out.println("precision: " + precision);
+        writer.write("precision: " + precision);
+        System.out.println("recall: " + recall);
+        writer.write("recall: " + recall);
         writer.close();
     }
 
