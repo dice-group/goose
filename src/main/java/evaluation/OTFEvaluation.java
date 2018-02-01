@@ -77,6 +77,7 @@ public class OTFEvaluation {
                 }catch(IOException e) {
                     System.err.println("Error searching for question: " + q.getLanguageToQuestion().get("en"));
                 }
+                break;
             }
         }
 
