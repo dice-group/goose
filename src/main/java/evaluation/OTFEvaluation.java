@@ -83,12 +83,9 @@ public class OTFEvaluation {
 
 
         //calculate mean fmeasure and print it
-        if(fmeasure!=0)
-            fmeasure = fmeasure/questionCounter;
-        if(precision!=0)
-            precision = precision/questionCounter;
-        if(recall != 0)
-            recall = recall/questionCounter;
+        fmeasure = fmeasure/questionCounter;
+        precision = precision/questionCounter;
+        recall = recall/questionCounter;
 
         System.out.println("fMeasure: " + fmeasure);
         writer.write("fMeasure: " + fmeasure);
