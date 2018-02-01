@@ -21,14 +21,36 @@ public class OTFEvaluation {
      */
     public static void main(String[] args) throws IOException {
 
+        String indexDir;
+        String otfDir;
+        String tdbDir;
+        boolean onlySPO;
+        String eva;
+        if(args.length > 2){
+            indexDir = args[0];
+            otfDir = args[1];
+            tdbDir = args[2];
+            onlySPO = Integer.parseInt(args[3]) == 0 ? true : false;
+            eva = args[4];
+
+        }
+        else{
+            System.out.println("Usage:");
+            System.out.println("1st argument: path to index\n" +
+                    "2nd argument: path where the temporary index will be created\n" +
+                    "3rd argument: path to tdb\n"+
+                    "4th argument: 0 for Take only S P O, 1 for Take considering Pagerank");
+            return;
+        }
+
 
         //loading QALD7 train multilingual using NLIWOD qa commons
         List<IQuestion> questions = LoaderController.load(Dataset.QALD7_Train_Multilingual);
-        String indexDir = System.getProperty("user.dir")+"/../index";
-        String otfDir = System.getProperty("user.dir")+"/../otfindex";
-        String tdbDir = System.getProperty("user.dir") + "/../tdb";
+        //String indexDir = System.getProperty("user.dir")+"/../index";
+        //String otfDir = System.getProperty("user.dir")+"/../otfindex";
+        //String tdbDir = System.getProperty("user.dir") + "/../tdb";
 
-        FileOutputStream out = new FileOutputStream(new File(System.getProperty("user.dir")+"/../eva.txt"));
+        FileOutputStream out = new FileOutputStream(new File(eva));
         writer = new BufferedWriter(new OutputStreamWriter(out));
 
 
@@ -44,7 +66,7 @@ public class OTFEvaluation {
                 try {
                     OTFSearcher searcher;
                     try {
-                        searcher = new OTFSearcher(indexDir, otfDir, tdbDir);
+                        searcher = new OTFSearcher(indexDir, otfDir, tdbDir, onlySPO);
                     } catch (IOException e) {
                         System.err.println("Could not open index!");
                         return;

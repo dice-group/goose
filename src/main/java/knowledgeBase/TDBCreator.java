@@ -1,6 +1,7 @@
 package knowledgeBase;
 
 import org.apache.jena.atlas.lib.Sink;
+import org.apache.jena.base.Sys;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.riot.RDFParser;
 import org.apache.jena.riot.system.StreamRDF;
@@ -18,9 +19,19 @@ public class TDBCreator {
 
     public static void main(String[] args)
     {
-        String database = System.getProperty("user.dir")+"/../tdb";
+        String database;
+        String files;
+        if(args.length < 2){
+            System.out.println("Usage:");
+            System.out.println("1st arg: path where database will be created");
+            System.out.println("2nd arg: path to DBpedia files");
+            return;
+        } else{
+            database = args[0];
+            files = args[1];
+        }
         //select your own path to dbpedia files in triple store (ttl)
-        File fileDirectory = new File(System.getProperty("user.dir")+"/../dbpedia");
+        File fileDirectory = new File(files);
         DatasetGraphTDB db = DatasetBuilderStd.create(Location.create(database));
 
         Sink<Triple> output = new TDBSink(db);
