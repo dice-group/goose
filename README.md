@@ -1,4 +1,4 @@
-# goose - entity search using generative algortihms
+# goose - entity search using generative algorithms
 The documents will be created at search time. Pre document generation is not available.
 No spaces in paths allowed.
 
