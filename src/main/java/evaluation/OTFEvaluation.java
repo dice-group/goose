@@ -88,9 +88,9 @@ public class OTFEvaluation {
         recall = recall/questionCounter;
 
         System.out.println("fMeasure: " + fmeasure);
-        writer.write("fMeasure: " + fmeasure);
+        writer.write("fMeasure: " + fmeasure + "\n");
         System.out.println("precision: " + precision);
-        writer.write("precision: " + precision);
+        writer.write("precision: " + precision + "\n");
         System.out.println("recall: " + recall);
         writer.write("recall: " + recall);
         writer.close();
