@@ -3,7 +3,7 @@ The documents will be created at search time. Pre document generation is not ava
 No spaces in paths allowed.
 
 ## Download DBpedia files
-use script https://github.com/dice-group/NLIWOD/blob/master/qa.hawk/deploy-scripts/index_fuseki.sh until line 90 to donwload all neccessary DPpedia files
+use script https://github.com/dice-group/NLIWOD/blob/master/qa.hawk/deploy-scripts/index_fuseki.sh until line 90 to donwload all neccessary DBpedia files
 
 ## Create triple Store
 use knowledgeBase.TDBCreator#main with 
@@ -32,7 +32,7 @@ use search.DocumentSearcher#main with
 
 to search directly
 
-example args: /home/goose/index /home/goose/otfindex /home/goose/tdb 0 Bill Gates, wife, birtphlace
+example args: /home/goose/index /home/goose/otfindex /home/goose/tdb 0 Bill Gates, wife, birthplace
 
 ## Evaluation
 use evaluation.OTFEvaluation#main with
