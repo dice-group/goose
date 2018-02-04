@@ -1,5 +1,6 @@
 package search;
 
+import documentGeneration.takeOnlySPO.TakeOnlySPO;
 import knowledgeBase.DocumentGenerator;
 import documentGeneration.AbstractDocumentGenerator;
 import documentGeneration.takeConsideringPagerank.TakeConsideringPagerank;
@@ -58,7 +59,7 @@ public class OTFSearcher {
      * @param pathToTDB Path to the tdb that holds all the data.
      * @throws IOException
      */
-    public OTFSearcher(String pathToIndex, String pathToOTFIndex, String pathToTDB) throws IOException {
+    public OTFSearcher(String pathToIndex, String pathToOTFIndex, String pathToTDB, boolean onlySPO) throws IOException {
         //open directory of the index
         FSDirectory indexDict = FSDirectory.open(Paths.get(pathToIndex));
         //create new indexsearcher for the index
@@ -69,7 +70,12 @@ public class OTFSearcher {
         //remove old otfindex
         this.pathToOTFIndex = pathToOTFIndex;
         FileUtils.deleteDirectory(new File(pathToOTFIndex));
-        this.generator = new TakeConsideringPagerank(db.getDefaultGraph());
+        if(onlySPO){
+            this.generator = new TakeOnlySPO();
+        } else{
+            this.generator = new TakeConsideringPagerank(db.getDefaultGraph());
+        }
+
     }
 
     /**
